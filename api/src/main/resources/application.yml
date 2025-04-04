@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: api
+  profiles:
+    group:
+      "local": "db"
+      "dev": "db"
+    default: local
+server:
+  port: 8080

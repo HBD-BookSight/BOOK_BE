@@ -1,0 +1,4 @@
+rootProject.name = 'HBD_BE'
+
+include 'api'
+include 'core:core-infra-db'
