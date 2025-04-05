@@ -5,7 +5,10 @@ bootJar { enabled = true }
 jar { enabled = false }
 
 dependencies {
-    implementation project(':core:core-infra-db');
+
+    implementation project(':core:core-infra-db'); 
+    //   implementation project(':core:core-infra-scheduleder');
+    implementation project(':core:core-domain');
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
