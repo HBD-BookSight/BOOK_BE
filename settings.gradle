@@ -1,8 +1,0 @@
-rootProject.name = 'HBD_BE'
-
-include 'api'
-
-include 'core:core-infra-db'
-//include 'core:core-infra-scheduleder'
-
-include 'core:core-domain'
