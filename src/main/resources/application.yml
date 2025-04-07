@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: BOOK_BE
+  datasource:
+    url: jdbc:mysql://localhost:3306/HBD?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # ?? ??? update? ???, ??? validate ??
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: true
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+  sql:
+    init:
+      mode: always
