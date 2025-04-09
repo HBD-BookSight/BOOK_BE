@@ -1,67 +1,62 @@
 package com.hbd.book_be.domain
 
-import com.hbd.book_be.domain.core.AutoIdEntity
+import com.hbd.book_be.domain.core.BaseTimeEntity
+import com.hbd.book_be.domain.enums.ContentType
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "contents")
-class Contents internal constructor(
-    builder: ContentsBuilder
-) : AutoIdEntity() {
-    // enum 변경 필요
-    @Column(name = "type" , nullable = false )
-    var type: String? = builder.type
-        protected set
+@Table(
+    name = "contents",
+    indexes = [
+        Index(name = "idx_contents_type", columnList = "type"),
+        Index(name = "idx_contents_creator_id", columnList = "creator_id"),
+        Index(name = "idx_contents_created_at", columnList = "created_at")
+    ]
+)
+class Contents(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    var type: ContentType,
 
     @Column(name = "url", nullable = false)
-    var url: String? = builder.url
-        protected set
+    var url: String,
 
     @Column(name = "image")
-    var image: String? = builder.image
-        protected set
+    var image: String? = null,
 
     @Column(name = "description")
-    var description: String? = builder.description
-        protected set
+    var description: String? = null,
 
     @Column(name = "memo")
-    var memo: String? = builder.memo
-        protected set
+    var memo: String? = null,
 
-    @Column(name = "created")
-    var created: Long? = builder.created
-        protected set
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    var creator: User,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contents", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val bookContentsList: MutableList<BookContents> = mutableListOf()
-    val bookContents: List<BookContents> get() = bookContentsList.toList()
+    val bookContentsList: MutableList<BookContents> = mutableListOf(),
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contents", cascade = [CascadeType.ALL], orphanRemoval = true)
     val tagContentsList: MutableList<TagContents> = mutableListOf()
-    val tagContents: List<TagContents> get() = tagContentsList.toList()
+) : BaseTimeEntity() {
 
-    @ElementCollection
-    @CollectionTable(name = "discovery_contents", joinColumns = [JoinColumn(name = "contents_id")])
-    private val discoveriesList: MutableList<DiscoveryContent> = mutableListOf()
-    val discoveries: List<DiscoveryContent> get() = discoveriesList.toList()
+    fun getTagList(): List<Tag> {
+        return tagContentsList.map { it.tag }
+    }
 
-}
+    fun addTag(tag: Tag) {
+        val addedTagContents = TagContents(
+            tag = tag,
+            contents = this
+        )
+        tagContentsList.add(addedTagContents)
+    }
 
-class ContentsBuilder internal constructor() {
-    var id: Long? = null
-    var type: String? = null
-    var url: String? = null
-    var image: String? = null
-    var description: String? = null
-    var memo: String? = null
-    var created: Long? = null
-
-    fun build(): Contents {
-        // 필요한 필드만 검증 (원하시면 여기에 더 추가 가능)
-        require(!type.isNullOrBlank()) { "type은 필수입니다." }
-        require(!url.isNullOrBlank()) { "url은 필수입니다." }
-
-        return Contents(this)
+    fun getBookList(): List<Book> {
+        return bookContentsList.map { it.book }
     }
 }

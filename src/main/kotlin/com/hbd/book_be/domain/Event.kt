@@ -1,92 +1,96 @@
 package com.hbd.book_be.domain
 
-import com.hbd.book_be.domain.core.AutoIdEntity
+import com.hbd.book_be.domain.core.BaseTimeEntity
+import com.hbd.book_be.domain.enums.EventFlag
+import com.hbd.book_be.domain.enums.EventLocation
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "event")
-class Event internal constructor(
-    builder: EventBuilder
-) : AutoIdEntity() {
-    @Column(name = "title")
-    var title: String? = builder.title
-        protected set
+@Table(
+    name = "event",
+    indexes = [
+        Index(name = "idx_event_title", columnList = "title"),
+        Index(name = "idx_event_type", columnList = "event_type"),
+        Index(name = "idx_event_flag", columnList = "event_flag"),
+        Index(name = "idx_event_date", columnList = "start_date, end_date"),
 
-    @Column(name = "owner")
-    var owner: String? = builder.owner
-        protected set
+    ]
+)
+class Event(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
 
-    @Column(name = "url")
-    var url: String? = builder.url
-        protected set
+    @Column(name = "title", nullable = false)
+    var title: String,
+
+    @Column(name = "owner", nullable = false)
+    var owner: String,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    var creator: User,
+
+    @Column(name = "url", nullable = false)
+    var url: String,
 
     @Column(name = "sender_email")
-    var senderEmail: String? = builder.senderEmail
-        protected set
+    var senderEmail: String? = null,
 
     @Column(name = "sender_message")
-    var senderMessage: String? = builder.senderMessage
-        protected set
+    var senderMessage: String? = null,
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "location")
-    var location: String? = builder.location
-        protected set
+    var location: EventLocation,
 
-    @Column(name = "status")
-    var status: Boolean? = builder.status
-        protected set
+    @Column(name = "is_posting", nullable = false)
+    var isPosting: Boolean,
 
-    @Column(name = "start_date")
-    var startDate: LocalDateTime? = builder.startDate
-        protected set
+    @Column(name = "start_date", nullable = false)
+    var startDate: LocalDateTime,
 
     @Column(name = "end_date")
-    var endDate: LocalDateTime? = builder.endDate
-        protected set
+    var endDate: LocalDateTime,
 
     @Column(name = "event_type")
-    var eventType: String? = builder.eventType
-        protected set
+    var eventType: String,
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_flag")
-    var eventFlag: String? = builder.eventFlag
-        protected set
+    var eventFlag: EventFlag,
 
     @Column(name = "memo")
-    var memo: String? = builder.memo
-        protected set
+    var memo: String? = null,
 
-    @OneToMany(fetch = FetchType.LAZY,  mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val tagEventsList: MutableList<TagEvent> = mutableListOf()
-    val tagEvents : List<TagEvent> get() = tagEventsList.toList()
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val tagEventsList: MutableList<TagEvent> = mutableListOf(),
 
-    @OneToMany(fetch = FetchType.LAZY,  mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
     val bookEventList: MutableList<BookEvent> = mutableListOf()
-    val bookEvent : List<BookEvent> get() = bookEventList.toList()
+
+) : BaseTimeEntity() {
+
+    fun getBookList(): List<Book> {
+        return bookEventList.map { it.book }
+    }
+
+    fun addBook(book: Book) {
+        val addedBook = BookEvent(book = book, event = this)
+        bookEventList.add(addedBook)
+        bookEventList.forEach {
+            it.book.addEvent(this)
+        }
+    }
+
+    fun getTagList(): List<Tag> {
+        return tagEventsList.map { it.tag }
+    }
+
+    fun addTag(tag: Tag) {
+        val addedTag = TagEvent(tag = tag, event = this)
+
+        tagEventsList.add(addedTag)
+    }
 
 }
-
-class EventBuilder internal constructor() {
-    var title: String? = null
-    var owner: String? = null
-    var url: String? = null
-    var senderEmail: String? = null
-    var senderMessage: String? = null
-    var location: String? = null
-    var status: Boolean? = null
-    var startDate: LocalDateTime? = null
-    var endDate: LocalDateTime? = null
-    var eventType: String? = null
-    var eventFlag: String? = null
-    var memo: String? = null
-
-    fun build(): Event {
-        // 유효성 검사 예시 (필요시 추가)
-        require(!title.isNullOrBlank()) { "title은 필수입니다." }
-        require(startDate != null) { "startDate는 필수입니다." }
-        require(endDate != null) { "endDate는 필수입니다." }
-
-        return Event(this)
-    }
-    }

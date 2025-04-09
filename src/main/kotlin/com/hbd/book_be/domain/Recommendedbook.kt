@@ -1,11 +1,19 @@
 package com.hbd.book_be.domain
 
-import jakarta.persistence.Column
-import jakarta.persistence.Embeddable
+import jakarta.persistence.*
 import java.time.LocalDateTime
 
-@Embeddable
-data class RecommendedBook(
+@Entity
+@Table(name = "recommended_book")
+class RecommendedBook(
+    @Id
+    var isbn: String,
+
+    @MapsId(value="isbn")
+    @OneToOne(targetEntity = Book::class, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name="isbn")
+    var book: Book? = null,
+
     @Column(name = "recommended_date", nullable = false)
     val recommendedDate: LocalDateTime,
 

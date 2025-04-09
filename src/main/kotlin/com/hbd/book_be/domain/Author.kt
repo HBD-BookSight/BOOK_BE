@@ -1,42 +1,25 @@
 package com.hbd.book_be.domain
 
-import com.hbd.book_be.domain.core.AutoIdEntity
+import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "author")
-class Author internal constructor(
-    builder: AuthorBuilder,
-) : AutoIdEntity(){
+@Table(
+    name = "author",
+    indexes = [
+        Index(name = "idx_author_koNm", columnList = "koNm"),
+        Index(name = "idx_author_enNm", columnList = "enNm")
+    ]
+)
+class Author(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false, updatable = false)
+    var id: Long? = null,
 
-    @Column(name = "koNm")
-    var koNm: String? = builder.koNm
-        protected set
-    @Column(name = "enNm")
-    var enNm: String? = builder.enNm
-        protected set
+    @Column(name = "koNm") var koNm: String,
 
-    companion object {
-        fun builder(): UserBuilder = UserBuilder()
-    }
-}
+    @Column(name = "enNm") var enNm: String,
 
-class AuthorBuilder internal constructor() {
-    var koNm: String? = null
-    var enNm: String? = null
-
-    internal fun build(): Author {
-        koNm?.let {
-            require(it.contains(Regex("[가-힣]"))) {
-                "한글 이름에는 한글이 최소 1글자 이상 포함되어야 합니다."
-            }
-        }
-        enNm?.let {
-            require(it.matches(Regex("^[a-zA-Z\\s]*$"))) {
-                "영문 이름은 알파벳과 공백만 포함할 수 있습니다."
-            }
-        }
-
-        return Author(this)
-    }
-}
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var bookList: MutableList<Book> = mutableListOf(),
+) : BaseTimeEntity()

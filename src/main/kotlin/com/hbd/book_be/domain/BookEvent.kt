@@ -9,10 +9,15 @@ data class BookEventId(
 ) : Serializable
 
 @Entity
-@Table(name = "book_event")
 @IdClass(BookEventId::class)
+@Table(
+    name = "book_event",
+    indexes = [
+        Index(name = "idx_book_event_isbn", columnList = "isbn"),
+        Index(name = "idx_book_event_event_id", columnList = "event_id"),
+    ]
+)
 class BookEvent(
-
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false, referencedColumnName = "id")
