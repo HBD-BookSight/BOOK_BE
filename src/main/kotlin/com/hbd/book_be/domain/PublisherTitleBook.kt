@@ -14,7 +14,7 @@ data class PublisherTitleBookId(
 @Table(name = "publisher_title_book",
     indexes = [
         Index(name = "idx_publisher_title_book_created_date", columnList = "created_at"),
-        Index(name = "idx_publisher_title_book_rank", columnList = "rank")
+        Index(name = "idx_publisher_title_book_publisher_id_rank", columnList = "publisher_id, rank")
     ])
 class PublisherTitleBook(
 
@@ -28,7 +28,7 @@ class PublisherTitleBook(
     @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     val publisher: Publisher,
 
-    @Column(name = "rank", nullable = false)
+    @Column(name = "`rank`", nullable = false)
     var rank: Int,
 
     @Column(name = "created_at", nullable = false)

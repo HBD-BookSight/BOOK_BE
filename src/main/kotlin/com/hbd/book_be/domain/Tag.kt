@@ -21,7 +21,7 @@ class Tag (
     var tagContentsList: MutableList<TagContents> = mutableListOf(),
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "tag", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var tagEventsList: MutableList<TagEvent> = mutableListOf()
+    var tagEventList: MutableList<TagEvent> = mutableListOf()
 
 ) : BaseTimeEntity(){
 
@@ -39,7 +39,7 @@ class Tag (
     }
 
     fun getEventsList(): List<Event> {
-        return tagEventsList.map { it.event }
+        return tagEventList.map { it.event }
     }
 
     fun addEventsList(event: Event) {
@@ -47,8 +47,8 @@ class Tag (
             tag = this,
             event = event
         )
-        event.tagEventsList.add(addedTagEvent)
-        this.tagEventsList.add(addedTagEvent)
+        event.tagEventList.add(addedTagEvent)
+        this.tagEventList.add(addedTagEvent)
     }
 }
 
