@@ -21,10 +21,11 @@ class Publisher(
     @Column(name = "logo")
     var logo: String? ,
 
-    @Column(name = "link")
-    var link: String? ,
+    @Column(name = "link", columnDefinition = "json")
+    var link: String? = "",
+
     @Column(name = "description", length = 2000)
-    var description: String?,
+    var description: String? = "",
 
     @Column(name = "is_official", nullable = false)
     var isOfficial: Boolean,
@@ -35,17 +36,4 @@ class Publisher(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "publisher", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookList: MutableList<Book> = mutableListOf()
 
-) : BaseTimeEntity(){
-
-    fun getPublisherTitleBookList(): List<Book> {
-        return this.publisherTitleBooksList.map { it.book }
-    }
-
-    fun addPublisherTitleBookList(book: Book) {
-        val addedPublisherTitleBook = PublisherTitleBook(book = book, publisher = this, 0)
-
-        this.publisherTitleBooksList.add(addedPublisherTitleBook)
-        book.publisherTitleBooksList.add(addedPublisherTitleBook)
-    }
-
-}
+) : BaseTimeEntity()
