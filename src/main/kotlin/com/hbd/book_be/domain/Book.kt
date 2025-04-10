@@ -51,6 +51,13 @@ class Book(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookEventList: MutableList<BookEvent> = mutableListOf(),
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val publisherTitleBooksList: MutableList<PublisherTitleBook> = mutableListOf(),
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var recommendedBook: RecommendedBook? = null
+
 ) : BaseTimeEntity() {
 
     fun getContentsList(): List<Contents> {
@@ -73,5 +80,17 @@ class Book(
         this.bookEventList.add(addedBookEvent)
         event.bookEventList.add(addedBookEvent)
     }
+
+    fun getPublisherTitleBookList(): List<Publisher> {
+        return this.publisherTitleBooksList.map { it.publisher }
+    }
+
+    fun addPublisherTitleBookList(publisher: Publisher) {
+        val addedPublisherTitleBook = PublisherTitleBook(book = this, publisher = publisher, 0)
+
+        this.publisherTitleBooksList.add(addedPublisherTitleBook)
+        publisher.publisherTitleBooksList.add(addedPublisherTitleBook)
+    }
+
 }
 

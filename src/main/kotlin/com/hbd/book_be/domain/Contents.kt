@@ -53,7 +53,8 @@ class Contents(
             tag = tag,
             contents = this
         )
-        tagContentsList.add(addedTagContents)
+        this.tagContentsList.add(addedTagContents)
+        tag.tagContentsList.add(addedTagContents)
     }
 
     fun getBookList(): List<Book> {

@@ -4,7 +4,12 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "recommended_book")
+@Table(name = "recommended_book",
+    indexes = [
+        Index(name = "idx_recommended_book_created_at", columnList = "created_at"),
+        Index(name = "idx_recommended_book_recommended_date", columnList = "recommended_date")
+    ]
+)
 class RecommendedBook(
     @Id
     var isbn: String,

@@ -89,8 +89,8 @@ class Event(
 
     fun addTag(tag: Tag) {
         val addedTag = TagEvent(tag = tag, event = this)
-
-        tagEventsList.add(addedTag)
+        tag.tagEventsList.add(addedTag)
+        this.tagEventsList.add(addedTag)
     }
 
 }
