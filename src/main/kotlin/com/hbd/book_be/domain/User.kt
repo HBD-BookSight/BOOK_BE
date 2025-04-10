@@ -1,6 +1,7 @@
 package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.core.AutoIdEntity
+import com.hbd.book_be.domain.enums.UserRole
 import jakarta.persistence.*
 
 @Entity

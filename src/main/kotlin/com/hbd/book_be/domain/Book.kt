@@ -2,97 +2,76 @@ package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
-import java.time.*
+import java.time.LocalDateTime
 
 @Entity
-@Table(name = "book")
-class Book internal constructor(
-    builder: BookBuilder
-) : BaseTimeEntity() {
-
+@Table(
+    name = "book",
+    indexes = [
+        Index(name = "idx_book_title", columnList = "title"),
+        Index(name = "idx_book_published_date", columnList = "published_date"),
+    ]
+)
+class Book(
     @Id
     @Column(name = "isbn", nullable = false, updatable = false)
-    var isbn: String? = builder.isbn
-        protected set
+    var isbn: String,
 
     @Column(name = "title", nullable = false)
-    var title: String? = builder.title
-        protected set
+    var title: String,
 
     @Column(name = "summary", nullable = false)
-    var summary: String? = builder.summary
-        protected set
+    var summary: String,
 
     @Column(name = "published_date", nullable = false)
-    var publishedDate: LocalDateTime? = builder.publishedDate
-        protected set
+    var publishedDate: LocalDateTime,
 
     @Column(name = "detail_url")
-    var detailUrl: String? = builder.detailUrl
-        protected set
+    var detailUrl: String? = null,
 
     @Column(name = "translator")
-    var translator: String? = builder.translator
-        protected set
+    var translator: String? = null,
 
     @Column(name = "price")
-    var price: Int? = builder.price
-        protected set
+    var price: Int? = null,
 
     @Column(name = "title_image")
-    var titleImage: String? = builder.titleImage
-        protected set
+    var titleImage: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
-    var author: Author? = builder.author
-        protected set
+    var author: Author,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", nullable = false)
-    var publisher: Publisher? = builder.publisher
-        protected set
+    var publisher: Publisher,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val bookContentsList: MutableList<BookContents> = mutableListOf()
-    val bookContents : List<BookContents> get() = bookContentsList.toList()
+    var bookContentsList: MutableList<BookContents> = mutableListOf(),
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val publisherTitleBookList: MutableList<PublisherTitleBook> = mutableListOf()
-    val publisherTitleBook : List<PublisherTitleBook> get() = publisherTitleBookList.toList()
+    var bookEventList: MutableList<BookEvent> = mutableListOf(),
+) : BaseTimeEntity() {
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val bookEventList: MutableList<BookEvent> = mutableListOf()
-    val bookEvent: List<BookEvent> get() = bookEventList.toList()
+    fun getContentsList(): List<Contents> {
+        return this.bookContentsList.map { it.contents }
+    }
 
-    @ElementCollection
-    @CollectionTable(name = "recommended_book", joinColumns = [JoinColumn(name = "isbn")])
-    val recommendedBooksList: MutableList<RecommendedBook> = mutableListOf()
-    val recommendedBooks : List<RecommendedBook> get() = recommendedBooksList.toList()
+    fun addContents(contents: Contents) {
+        val addedBookContents = BookContents(book = this, contents = contents)
 
-}
+        this.bookContentsList.add(addedBookContents)
+        contents.bookContentsList.add(addedBookContents)
+    }
 
+    fun getEventList(): List<Event> {
+        return this.bookEventList.map { it.event }
+    }
 
-class BookBuilder internal constructor() {
-    var isbn: String? = null
-    var title: String? = null
-    var summary: String? = null
-    var publishedDate: LocalDateTime? = null
-    var detailUrl: String? = null
-    var translator: String? = null
-    var price: Int? = null
-    var titleImage: String? = null
-    var author: Author? = null
-    var publisher: Publisher? = null
-
-    fun build(): Book {
-        require(!isbn.isNullOrBlank()) { "ISBN은 필수입니다." }
-        require(!title.isNullOrBlank()) { "책 제목은 필수입니다." }
-        require(!summary.isNullOrBlank()) { "책 요약은 필수입니다." }
-        require(publishedDate != null) { "출간일은 필수입니다." }
-        require(author != null) { "작가는 필수입니다." }
-        require(publisher != null) { "출판사는 필수입니다." }
-
-        return Book(this)
+    fun addEvent(event: Event) {
+        val addedBookEvent = BookEvent(book = this, event = event)
+        this.bookEventList.add(addedBookEvent)
+        event.bookEventList.add(addedBookEvent)
     }
 }
+

@@ -21,11 +21,11 @@ class PublisherTitleBook(
 
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher_id", referencedColumnName = "id" )
+    @JoinColumn(name = "publisher_id", referencedColumnName = "id")
     val publisher: Publisher,
 
-    @Column(nullable = false)
-    val rank: Int,
+    @Column(name = "`rank`", nullable = false)
+    var rank: Int,
 
     @Column(name = "created_at", nullable = false)
     val createdAt: LocalDateTime = LocalDateTime.now()
