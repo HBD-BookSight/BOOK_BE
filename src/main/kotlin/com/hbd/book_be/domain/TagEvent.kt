@@ -9,7 +9,7 @@ data class TagEventId(
 ) : Serializable
 
 @Entity
-@Table(name = "tags")
+@Table(name = "tag_event")
 @IdClass(TagEventId::class)
 class TagEvent(
     @Id

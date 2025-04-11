@@ -11,7 +11,11 @@ data class PublisherTitleBookId(
 
 @Entity
 @IdClass(PublisherTitleBookId::class)
-@Table(name = "publisher_title_book")
+@Table(name = "publisher_title_book",
+    indexes = [
+        Index(name = "idx_publisher_title_book_created_date", columnList = "created_at"),
+        Index(name = "idx_publisher_title_book_publisher_id_rank", columnList = "publisher_id, rank")
+    ])
 class PublisherTitleBook(
 
     @Id

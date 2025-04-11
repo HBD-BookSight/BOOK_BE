@@ -9,7 +9,7 @@ data class TagContentsId(
 ) : Serializable
 
 @Entity
-@Table(name = "tagcontents")
+@Table(name = "tag_contents")
 @IdClass(TagContentsId::class)
 class TagContents(
     @Id
