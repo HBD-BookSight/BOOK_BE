@@ -32,9 +32,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // Springdoc OpenAPI
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // DB
     runtimeOnly("com.mysql:mysql-connector-j")
 
     // QueryDSL
