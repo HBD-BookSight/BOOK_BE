@@ -64,7 +64,7 @@ class Event(
     var memo: String? = null,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val tagEventsList: MutableList<TagEvent> = mutableListOf(),
+    val tagEventList: MutableList<TagEvent> = mutableListOf(),
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
     val bookEventList: MutableList<BookEvent> = mutableListOf()
@@ -84,13 +84,13 @@ class Event(
     }
 
     fun getTagList(): List<Tag> {
-        return tagEventsList.map { it.tag }
+        return tagEventList.map { it.tag }
     }
 
     fun addTag(tag: Tag) {
         val addedTag = TagEvent(tag = tag, event = this)
-
-        tagEventsList.add(addedTag)
+        tag.tagEventList.add(addedTag)
+        this.tagEventList.add(addedTag)
     }
 
 }

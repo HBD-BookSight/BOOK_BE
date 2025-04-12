@@ -1,48 +1,39 @@
 package com.hbd.book_be.domain
 
-import com.hbd.book_be.domain.core.AutoIdEntity
+import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "publisher")
-class Publisher internal constructor(
-    builder: PublisherBuilder,
-) : AutoIdEntity() {
+@Table(name = "publisher",
+    indexes = [
+        Index(name = "idx_publisher_name", columnList = "name"),
+        Index(name = "idx_publisher_is_official_name", columnList = "is_official, name")
+    ]
+)
+class Publisher(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID", nullable = false, updatable = false)
+    var id: Long? = null,
 
     @Column(name = "name", nullable = false)
-    var name: String = requireNotNull(builder.name) { "출판사 이름은 필수입니다." }
-        protected set
+    var name: String ,
 
     @Column(name = "logo")
-    var logo: String? = builder.logo
-        protected set
+    var logo: String? ,
 
-    @Column(name = "link")
-    var link: String? = builder.link
-        protected set
+    @Column(name = "link", columnDefinition = "json")
+    var link: String? = "",
 
     @Column(name = "description", length = 2000)
-    var description: String? = builder.description
-        protected set
+    var description: String? = "",
 
     @Column(name = "is_official", nullable = false)
-    var isOfficial: Boolean = builder.isOfficial
-        protected set
+    var isOfficial: Boolean,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "publisher", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val publisherTitleBooksList: MutableList<PublisherTitleBook> = mutableListOf()
-    val publisherTitleBooks: List<PublisherTitleBook> get() = publisherTitleBooksList.toList()
-}
+    val publisherTitleBooksList: MutableList<PublisherTitleBook> = mutableListOf(),
 
-class PublisherBuilder internal constructor() {
-    var name: String? = null
-    var logo: String? = null
-    var link: String? = null
-    var description: String? = null
-    var isOfficial: Boolean = false
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "publisher", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var bookList: MutableList<Book> = mutableListOf()
 
-    internal fun build(): Publisher {
-        require(!name.isNullOrBlank()) { "출판사 이름은 필수입니다." }
-        return Publisher(this)
-    }
-}
+) : BaseTimeEntity()

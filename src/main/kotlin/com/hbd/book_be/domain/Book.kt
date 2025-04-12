@@ -51,6 +51,7 @@ class Book(
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookEventList: MutableList<BookEvent> = mutableListOf(),
+
 ) : BaseTimeEntity() {
 
     fun getContentsList(): List<Contents> {
