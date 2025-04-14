@@ -4,7 +4,8 @@ import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "publisher",
+@Table(
+    name = "publisher",
     indexes = [
         Index(name = "idx_publisher_name", columnList = "name"),
         Index(name = "idx_publisher_is_official_name", columnList = "is_official, name")
@@ -16,16 +17,16 @@ class Publisher(
     var id: Long? = null,
 
     @Column(name = "name", nullable = false)
-    var name: String ,
+    var name: String,
 
     @Column(name = "logo")
-    var logo: String? ,
+    var logo: String? = null,
 
     @Column(name = "link", columnDefinition = "json")
-    var link: String? = "",
+    var link: String? = null,
 
     @Column(name = "description", length = 2000)
-    var description: String? = "",
+    var description: String? = null,
 
     @Column(name = "is_official", nullable = false)
     var isOfficial: Boolean,
