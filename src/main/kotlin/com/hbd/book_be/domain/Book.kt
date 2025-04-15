@@ -10,6 +10,7 @@ import java.time.LocalDateTime
     indexes = [
         Index(name = "idx_book_title", columnList = "title"),
         Index(name = "idx_book_published_date", columnList = "published_date"),
+        Index(name = "idx_book_deleted_at", columnList = "deleted_at")
     ]
 )
 class Book(
