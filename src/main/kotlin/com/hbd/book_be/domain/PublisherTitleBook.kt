@@ -5,8 +5,8 @@ import java.io.Serializable
 import java.time.LocalDateTime
 
 data class PublisherTitleBookId(
-    var book: Book,
-    var publisher: Publisher
+    var book: Book? = null,
+    var publisher: Publisher? = null
 ) : Serializable
 
 @Entity

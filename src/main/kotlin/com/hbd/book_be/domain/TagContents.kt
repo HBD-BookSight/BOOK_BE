@@ -4,8 +4,8 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 data class TagContentsId(
-    var tag: Tag, // 필드명 변경
-    var contents: Contents // 필드명 변경
+    var tag: Tag? = null,
+    var contents: Contents? = null
 ) : Serializable
 
 @Entity

@@ -4,8 +4,8 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 data class TagEventId(
-    val tag: Tag,
-    val event: Event
+    val tag: Tag? = null,
+    val event: Event? = null
 ) : Serializable
 
 @Entity
