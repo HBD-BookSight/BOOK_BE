@@ -5,10 +5,7 @@ import jakarta.persistence.*
 
 
 @Entity
-@Table(name = "tag",
-    indexes = [
-        Index(name = "idx_tag_name", columnList = "name"),
-    ])
+@Table(name = "tag")
 class Tag (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID", nullable = false, updatable = false)
