@@ -1,5 +1,5 @@
 package com.hbd.book_be.exception
 
-class NotFoundException(
-    message: String
+data class NotFoundException(
+    override val message: String
 ) : RuntimeException(message)

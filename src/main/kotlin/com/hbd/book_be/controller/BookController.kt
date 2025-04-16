@@ -2,8 +2,11 @@ package com.hbd.book_be.controller
 
 import com.hbd.book_be.dto.BookDetailedDto
 import com.hbd.book_be.dto.BookDto
+import com.hbd.book_be.dto.request.BookAddRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
+import com.hbd.book_be.exception.ErrorCodes
+import com.hbd.book_be.exception.ValidationException
 import com.hbd.book_be.service.BookService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -42,8 +45,25 @@ class BookController(
     }
 
     @PostMapping
-    fun addBook(): ResponseEntity<BookDetailedDto> {
-        TODO()
+    fun addBook(
+        @RequestBody bookAddRequest: BookAddRequest,
+    ): ResponseEntity<BookDetailedDto> {
+        if (bookAddRequest.publisherId == null && bookAddRequest.publisherName == null) {
+            throw ValidationException(
+                message = "Either publisherId or publisherName must not be null",
+                errorCode = ErrorCodes.MISSING_PUBLISHER_INFO
+            )
+        }
+
+        if (bookAddRequest.authorIdList.isEmpty() && bookAddRequest.authorNameList.isEmpty()) {
+            throw ValidationException(
+                message = "Either publisherId or publisherName must not be null",
+                errorCode = ErrorCodes.MISSING_AUTHOR_INFO
+            )
+        }
+
+        val bookDetailedDto = bookService.addBook(bookAddRequest)
+        return ResponseEntity.ok(bookDetailedDto)
     }
 
     @GetMapping("/recommended")

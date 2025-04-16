@@ -9,20 +9,24 @@ data class BookDto(
     val summary: String,
     val publishedDate: LocalDateTime,
     val titleImage: String?,
-    val author: AuthorDto,
+    val authorList: List<AuthorDto>,
     val translator: String?,
     val price: Int?,
     val publisher: PublisherDto,
 ) {
     companion object {
         fun fromEntity(book: Book): BookDto {
+            val authorList = book.bookAuthorList.map {
+                AuthorDto.fromEntity(it.author)
+            }
+
             return BookDto(
                 isbn = book.isbn,
                 title = book.title,
                 summary = book.summary,
                 publishedDate = book.publishedDate,
                 titleImage = book.titleImage,
-                author = AuthorDto.fromEntity(book.author),
+                authorList = authorList,
                 translator = book.translator,
                 price = book.price,
                 publisher = PublisherDto.fromEntity(book.publisher)

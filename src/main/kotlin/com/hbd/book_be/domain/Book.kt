@@ -39,9 +39,8 @@ class Book(
     @Column(name = "title_image")
     var titleImage: String? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    var author: Author,
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", nullable = false)
@@ -74,6 +73,12 @@ class Book(
         val addedBookEvent = BookEvent(book = this, event = event)
         this.bookEventList.add(addedBookEvent)
         event.bookEventList.add(addedBookEvent)
+    }
+
+    fun addAuthor(author: Author) {
+        val bookAuthor = BookAuthor(book = this, author = author)
+        this.bookAuthorList.add(bookAuthor)
+        author.bookAuthorList.add(bookAuthor)
     }
 }
 

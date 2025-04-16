@@ -7,7 +7,6 @@ import jakarta.persistence.*
 @Table(
     name = "publisher",
     indexes = [
-        Index(name = "idx_publisher_name", columnList = "name"),
         Index(name = "idx_publisher_is_official_name", columnList = "is_official, name")
     ]
 )
@@ -16,7 +15,7 @@ class Publisher(
     @Column(name = "ID", nullable = false, updatable = false)
     var id: Long? = null,
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     var name: String,
 
     @Column(name = "logo")
@@ -29,7 +28,7 @@ class Publisher(
     var description: String? = null,
 
     @Column(name = "is_official", nullable = false)
-    var isOfficial: Boolean,
+    var isOfficial: Boolean = false,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "publisher", cascade = [CascadeType.ALL], orphanRemoval = true)
     val publisherTitleBooksList: MutableList<PublisherTitleBook> = mutableListOf(),
