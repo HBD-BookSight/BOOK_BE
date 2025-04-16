@@ -1,8 +1,7 @@
 package com.hbd.book_be.controller
 
-import com.hbd.book_be.dto.BookDetailedDto
-import com.hbd.book_be.dto.BookDto
-import com.hbd.book_be.dto.request.BookAddRequest
+import com.hbd.book_be.dto.*
+import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.exception.ErrorCodes
@@ -45,31 +44,56 @@ class BookController(
     }
 
     @PostMapping
-    fun addBook(
-        @RequestBody bookAddRequest: BookAddRequest,
+    fun createBook(
+        @RequestBody bookCreateRequest: BookCreateRequest,
     ): ResponseEntity<BookDetailedDto> {
-        if (bookAddRequest.publisherId == null && bookAddRequest.publisherName == null) {
+        if (bookCreateRequest.publisherId == null && bookCreateRequest.publisherName == null) {
             throw ValidationException(
                 message = "Either publisherId or publisherName must not be null",
                 errorCode = ErrorCodes.MISSING_PUBLISHER_INFO
             )
         }
 
-        if (bookAddRequest.authorIdList.isEmpty() && bookAddRequest.authorNameList.isEmpty()) {
+        if (bookCreateRequest.authorIdList.isEmpty() && bookCreateRequest.authorNameList.isEmpty()) {
             throw ValidationException(
                 message = "Either publisherId or publisherName must not be null",
                 errorCode = ErrorCodes.MISSING_AUTHOR_INFO
             )
         }
 
-        val bookDetailedDto = bookService.addBook(bookAddRequest)
+        val bookDetailedDto = bookService.createBook(bookCreateRequest)
         return ResponseEntity.ok(bookDetailedDto)
     }
 
     @GetMapping("/recommended")
-    fun getRecommendBooks(): ListResponse<BookDto> {
-        TODO()
+    fun getRecommendBooks(): ResponseEntity<ListResponse<RecommendedBookDto>> {
+        val recommendedBookList = bookService.getRecommendedBooks()
+        val listResponse = ListResponse(
+            recommendedBookList,
+            length = recommendedBookList.size,
+        )
+        return ResponseEntity.ok(listResponse)
     }
 
+    @GetMapping("/{isbn}/events")
+    fun getBookEvents(@PathVariable isbn: String): ResponseEntity<ListResponse<EventDto>> {
+        val bookEventList: List<EventDto> = bookService.getBookEventList(isbn)
+        val listResponse = ListResponse(
+            items = bookEventList,
+            length = bookEventList.size,
+        )
 
+        return ResponseEntity.ok(listResponse)
+    }
+
+    @GetMapping("/{isbn}/contents")
+    fun getBookContents(@PathVariable isbn: String): ResponseEntity<ListResponse<ContentsDto>> {
+        val bookContentsList: List<ContentsDto> = bookService.getBookContentsList(isbn)
+        val listResponse = ListResponse(
+            items = bookContentsList,
+            length = bookContentsList.size,
+        )
+
+        return ResponseEntity.ok(listResponse)
+    }
 }

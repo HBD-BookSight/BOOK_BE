@@ -2,7 +2,7 @@ package com.hbd.book_be.dto.request
 
 import java.time.LocalDateTime
 
-data class BookAddRequest(
+data class BookCreateRequest(
     val isbn: String,
     val title: String,
     val summary: String,
