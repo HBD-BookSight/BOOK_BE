@@ -4,7 +4,7 @@ import com.hbd.book_be.domain.core.BaseTimeEntity
 import com.hbd.book_be.domain.enums.EventFlag
 import com.hbd.book_be.domain.enums.EventLocation
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Entity
 @Table(
@@ -24,8 +24,8 @@ class Event(
     @Column(name = "title", nullable = false)
     var title: String,
 
-    @Column(name = "owner", nullable = false)
-    var owner: String,
+    @Column(name = "host", nullable = false)
+    var host: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
@@ -48,10 +48,10 @@ class Event(
     var isPosting: Boolean,
 
     @Column(name = "start_date", nullable = false)
-    var startDate: LocalDateTime,
+    var startDate: LocalDate,
 
     @Column(name = "end_date")
-    var endDate: LocalDateTime,
+    var endDate: LocalDate,
 
     @Column(name = "event_type")
     var eventType: String,
@@ -77,10 +77,8 @@ class Event(
 
     fun addBook(book: Book) {
         val addedBook = BookEvent(book = book, event = this)
-        bookEventList.add(addedBook)
-        bookEventList.forEach {
-            it.book.addEvent(this)
-        }
+        this.bookEventList.add(addedBook)
+        book.bookEventList.add(addedBook)
     }
 
     fun getTagList(): List<Tag> {
