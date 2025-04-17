@@ -4,12 +4,10 @@ import com.hbd.book_be.dto.ContentsDetailedDto
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.domain.Contents
-import com.hbd.book_be.domain.BookContents
 import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.*
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -20,7 +18,6 @@ import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ContentsService(
-    @Autowired
     private val contentsRepository: ContentsRepository,
     private val discoveryContentsRepository: DiscoveryContentsRepository,
     private val userRepository: UserRepository,

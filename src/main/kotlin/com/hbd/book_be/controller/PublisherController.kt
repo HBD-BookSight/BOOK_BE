@@ -1,5 +1,7 @@
 package com.hbd.book_be.controller
 
+import com.hbd.book_be.dto.BookDto
+import com.hbd.book_be.dto.PublisherDetaildDto
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.service.PublisherService
@@ -22,7 +24,7 @@ class PublisherController(
     }
 
     @GetMapping("/{id}")
-    fun getDetailedPublisher(@PathVariable id: Long): ResponseEntity<PublisherDto> {
+    fun getDetailedPublisher(@PathVariable id: Long): ResponseEntity<PublisherDetaildDto> {
         val publisherDto = publisherService.getPublisherDetail(id)
         return ResponseEntity.ok(publisherDto)
     }
