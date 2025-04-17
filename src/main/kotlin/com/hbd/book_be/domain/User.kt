@@ -5,7 +5,7 @@ import com.hbd.book_be.domain.enums.UserRole
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "user",
+@Table(name = "users",
     indexes = [
         Index(name = "idx_user_name", columnList = "name"),
         Index(name = "idx_user_name_role", columnList = "name, role"),
