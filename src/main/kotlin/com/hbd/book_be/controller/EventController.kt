@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/v1/events")
 class EventController(
     private val eventService: EventService
 ) {

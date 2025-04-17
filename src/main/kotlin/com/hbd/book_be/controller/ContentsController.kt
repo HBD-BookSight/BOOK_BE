@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/contents")
+@RequestMapping("/api/v1/contents")
 class ContentsController(
     @Autowired
     private val contentsService: ContentsService
