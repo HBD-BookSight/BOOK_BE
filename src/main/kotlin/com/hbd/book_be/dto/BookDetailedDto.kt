@@ -10,7 +10,7 @@ data class BookDetailedDto(
     val summary: String,
     val publishedDate: LocalDateTime,
     val titleImage: String?,
-    val author: AuthorDto,
+    val authorList: List<AuthorDto>,
     val translator: String?,
     val price: Int?,
     val publisher: PublisherDto,
@@ -29,6 +29,10 @@ data class BookDetailedDto(
                 EventDto.fromEntity(it.event)
             }
 
+            val authorList = book.bookAuthorList.map {
+                AuthorDto.fromEntity(it.author)
+            }
+
             return BookDetailedDto(
                 isbn = book.isbn,
                 title = book.title,
@@ -36,7 +40,7 @@ data class BookDetailedDto(
                 summary = book.summary,
                 publishedDate = book.publishedDate,
                 titleImage = book.titleImage,
-                author = AuthorDto.fromEntity(book.author),
+                authorList = authorList,
                 translator = book.translator,
                 price = book.price,
                 publisher = PublisherDto.fromEntity(book.publisher),

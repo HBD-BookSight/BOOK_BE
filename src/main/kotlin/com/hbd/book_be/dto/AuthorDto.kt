@@ -1,12 +1,12 @@
 package com.hbd.book_be.dto
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.hbd.book_be.domain.Author
 
 data class AuthorDto(
     val id: Long,
-    @JsonProperty("koreanName") val koNm: String? = null,
-    @JsonProperty("englishName") val enNm: String? = null,
+    val name: String,
+    val description: String? = null,
+    val profile: String? = null,
 ) {
     companion object {
         fun fromEntity(author: Author): AuthorDto {
@@ -15,7 +15,9 @@ data class AuthorDto(
             }
 
             return AuthorDto(
-                id = author.id!!, koNm = author.koNm, enNm = author.enNm
+                id = author.id!!,
+                name = author.name,
+                profile = author.profile,
             )
         }
     }

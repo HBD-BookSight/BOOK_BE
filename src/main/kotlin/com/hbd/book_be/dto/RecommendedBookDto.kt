@@ -1,9 +1,10 @@
 package com.hbd.book_be.dto
 
-import com.hbd.book_be.domain.Book
+import com.hbd.book_be.domain.RecommendedBook
+import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class BookDto(
+data class RecommendedBookDto(
     val isbn: String,
     val title: String,
     val summary: String,
@@ -13,14 +14,16 @@ data class BookDto(
     val translator: String?,
     val price: Int?,
     val publisher: PublisherDto,
+    val recommendedDate: LocalDate
 ) {
     companion object {
-        fun fromEntity(book: Book): BookDto {
+        fun fromEntity(recommendedBook: RecommendedBook): RecommendedBookDto {
+            val book = recommendedBook.book
             val authorList = book.bookAuthorList.map {
                 AuthorDto.fromEntity(it.author)
             }
 
-            return BookDto(
+            return RecommendedBookDto(
                 isbn = book.isbn,
                 title = book.title,
                 summary = book.summary,
@@ -29,7 +32,8 @@ data class BookDto(
                 authorList = authorList,
                 translator = book.translator,
                 price = book.price,
-                publisher = PublisherDto.fromEntity(book.publisher)
+                publisher = PublisherDto.fromEntity(book.publisher),
+                recommendedDate = recommendedBook.recommendedDate
             )
         }
     }

@@ -7,8 +7,8 @@ import jakarta.persistence.*
 @Table(
     name = "author",
     indexes = [
-        Index(name = "idx_author_koNm", columnList = "koNm"),
-        Index(name = "idx_author_enNm", columnList = "enNm")
+        Index(name = "idx_author_name", columnList = "name"),
+        Index(name = "idx_author_is_official", columnList = "is_official"),
     ]
 )
 class Author(
@@ -16,10 +16,18 @@ class Author(
     @Column(name = "ID", nullable = false, updatable = false)
     var id: Long? = null,
 
-    @Column(name = "koNm") var koNm: String,
+    @Column(name = "name")
+    var name: String,
 
-    @Column(name = "enNm") var enNm: String,
+    @Column(name = "description")
+    var description: String? = null,
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var bookList: MutableList<Book> = mutableListOf(),
+    @Column(name = "profile")
+    var profile: String? = null,
+
+    @Column(name = "is_official")
+    var isOfficial: Boolean = false,
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "author")
+    var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),
 ) : BaseTimeEntity()
