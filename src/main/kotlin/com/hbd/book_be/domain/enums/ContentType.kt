@@ -4,5 +4,6 @@ enum class ContentType {
     VIDEO,
     ARTICLE,
     PODCAST,
-    LINK
+    LINK,
+    SNS
 }

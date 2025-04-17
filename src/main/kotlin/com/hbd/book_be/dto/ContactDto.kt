@@ -18,11 +18,4 @@ data class ContactDto(
             )
         }
     }
-
-    fun toEntity(): Contact {
-        return Contact(
-            email = email,
-            message = message
-        )
-    }
 }

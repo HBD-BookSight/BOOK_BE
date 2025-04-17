@@ -9,15 +9,16 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/publisher")
-class PublisherController (
+class PublisherController(
     @Autowired
     private val publisherService: PublisherService
-){
+) {
 
     @GetMapping
-    fun getPublisher(): ListResponse<PublisherDto> {
+    fun getPublisher(): ResponseEntity<ListResponse<PublisherDto>> {
         val publisherList = publisherService.getPublishers()
-        return ListResponse(items = publisherList, length = publisherList.size)
+        val listResponse = ListResponse(items = publisherList, length = publisherList.size)
+        return ResponseEntity.ok(listResponse)
     }
 
     @GetMapping("/{id}")

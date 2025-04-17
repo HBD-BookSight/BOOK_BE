@@ -9,6 +9,6 @@ data class ContentsCreateRequest(
     val description: String?,
     val memo: String?,
     val creatorId: Long,
-    val tagIds: List<Long> = emptyList(),
-    val bookIds: List<String> = emptyList()
+    val tagList: List<String> = emptyList(),
+    val bookIsbnList: List<String> = emptyList()
 )

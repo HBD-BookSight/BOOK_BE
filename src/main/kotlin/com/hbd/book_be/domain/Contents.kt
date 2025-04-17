@@ -60,4 +60,13 @@ class Contents(
     fun getBookList(): List<Book> {
         return bookContentsList.map { it.book }
     }
+
+    fun addBook(book: Book) {
+        val addedTagContents = BookContents(
+            book = book,
+            contents = this
+        )
+        this.bookContentsList.add(addedTagContents)
+        book.bookContentsList.add(addedTagContents)
+    }
 }
