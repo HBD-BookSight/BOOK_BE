@@ -1,13 +1,14 @@
 package com.hbd.book_be.controller
 
-import com.hbd.book_be.dto.BookDto
-import com.hbd.book_be.dto.PublisherDetaildDto
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.service.PublisherService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/publisher")
@@ -24,7 +25,7 @@ class PublisherController(
     }
 
     @GetMapping("/{id}")
-    fun getDetailedPublisher(@PathVariable id: Long): ResponseEntity<PublisherDetaildDto> {
+    fun getDetailedPublisher(@PathVariable id: Long): ResponseEntity<PublisherDto.Detail> {
         val publisherDto = publisherService.getPublisherDetail(id)
         return ResponseEntity.ok(publisherDto)
     }

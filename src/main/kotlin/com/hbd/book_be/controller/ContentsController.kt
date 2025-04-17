@@ -1,7 +1,6 @@
 package com.hbd.book_be.controller
 
 import com.hbd.book_be.domain.enums.ContentType
-import com.hbd.book_be.dto.ContentsDetailedDto
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.dto.request.ContentsSearchRequest
@@ -44,7 +43,7 @@ class ContentsController(
     }
 
     @GetMapping("/{id}")
-    fun getDetailedContents(@PathVariable id: Long): ResponseEntity<ContentsDetailedDto> {
+    fun getDetailedContents(@PathVariable id: Long): ResponseEntity<ContentsDto.Detail> {
         val contentsDetailedDto = contentsService.getContentsDetail(id)
         return ResponseEntity.ok(contentsDetailedDto)
     }

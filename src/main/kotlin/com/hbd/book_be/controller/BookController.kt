@@ -38,7 +38,7 @@ class BookController(
     }
 
     @GetMapping("/{isbn}")
-    fun getDetailedBook(@PathVariable isbn: String): ResponseEntity<BookDetailedDto> {
+    fun getDetailedBook(@PathVariable isbn: String): ResponseEntity<BookDto.Detail> {
         val bookDetailDto = bookService.getBookDetail(isbn)
         return ResponseEntity.ok(bookDetailDto)
     }
@@ -46,7 +46,7 @@ class BookController(
     @PostMapping
     fun createBook(
         @RequestBody bookCreateRequest: BookCreateRequest,
-    ): ResponseEntity<BookDetailedDto> {
+    ): ResponseEntity<BookDto.Detail> {
         if (bookCreateRequest.publisherId == null && bookCreateRequest.publisherName == null) {
             throw ValidationException(
                 message = "Either publisherId or publisherName must not be null",

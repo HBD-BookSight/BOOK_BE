@@ -52,7 +52,7 @@ class Book(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookEventList: MutableList<BookEvent> = mutableListOf(),
 
-) : BaseTimeEntity() {
+    ) : BaseTimeEntity() {
 
     fun getContentsList(): List<Contents> {
         return this.bookContentsList.map { it.contents }
@@ -79,6 +79,16 @@ class Book(
         val bookAuthor = BookAuthor(book = this, author = author)
         this.bookAuthorList.add(bookAuthor)
         author.bookAuthorList.add(bookAuthor)
+    }
+
+    fun removeAuthor(author: Author) {
+        val targetBookAuthor = this.bookAuthorList.find { it.author.id == author.id }
+        if (targetBookAuthor == null) {
+            return
+        }
+
+        this.bookAuthorList.remove(targetBookAuthor)
+        targetBookAuthor.author.bookAuthorList.remove(targetBookAuthor)
     }
 }
 

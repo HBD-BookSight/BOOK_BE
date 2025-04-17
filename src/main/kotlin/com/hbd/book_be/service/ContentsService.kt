@@ -1,17 +1,15 @@
 package com.hbd.book_be.service
 
-import com.hbd.book_be.dto.ContentsDetailedDto
-import com.hbd.book_be.dto.ContentsDto
-import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.domain.Contents
 import com.hbd.book_be.domain.Tag
+import com.hbd.book_be.dto.ContentsDto
+import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrNull
@@ -26,13 +24,13 @@ class ContentsService(
 ) {
 
     @Transactional(readOnly = true)
-    fun getContentsDetail(id: Long): ContentsDetailedDto {
+    fun getContentsDetail(id: Long): ContentsDto.Detail {
         val contents = contentsRepository.findById(id).getOrNull()
         if (contents == null || contents.deletedAt != null) {
             throw NotFoundException("Not found Cotents(isbn: $id)")
         }
 
-        return ContentsDetailedDto.fromEntity(contents)
+        return ContentsDto.Detail.fromEntity(contents)
     }
 
     @Transactional(readOnly = true)
