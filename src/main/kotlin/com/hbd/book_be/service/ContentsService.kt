@@ -50,9 +50,19 @@ class ContentsService(
     }
 
     @Transactional(readOnly = true)
-    fun getDiscoveryContents(): List<ContentsDto> {
-        val discoveryList = discoveryContentsRepository.findAll()
-        return discoveryList.map { ContentsDto.fromEntity(it.contents) }
+    fun getDiscoveryContents(
+        page: Int,
+        limit: Int,
+        orderBy: String,
+        direction: String,
+    ): Page<DiscoveryContentsDto> {
+        val sortDirection = Sort.Direction.fromString(direction)
+        val sort = Sort.by(sortDirection, orderBy)
+        val pageRequest = PageRequest.of(page, limit, sort)
+
+
+        val discoveryContentsPage = discoveryContentsRepository.findContentsWithConditions(pageRequest)
+        return discoveryContentsPage.map { DiscoveryContentsDto.fromEntity(it) }
     }
 
     @Transactional
