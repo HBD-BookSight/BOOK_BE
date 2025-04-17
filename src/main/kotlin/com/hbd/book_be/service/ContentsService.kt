@@ -5,6 +5,7 @@ import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.domain.Contents
 import com.hbd.book_be.domain.Tag
+import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.*
@@ -52,9 +53,19 @@ class ContentsService(
     }
 
     @Transactional(readOnly = true)
-    fun getDiscoveryContents(): List<ContentsDto> {
-        val discoveryList = discoveryContentsRepository.findAll()
-        return discoveryList.map { ContentsDto.fromEntity(it.contents) }
+    fun getDiscoveryContents(
+        page: Int,
+        limit: Int,
+        orderBy: String,
+        direction: String,
+    ): Page<DiscoveryContentsDto> {
+        val sortDirection = Sort.Direction.fromString(direction)
+        val sort = Sort.by(sortDirection, orderBy)
+        val pageRequest = PageRequest.of(page, limit, sort)
+
+
+        val discoveryContentsPage = discoveryContentsRepository.findContentsWithConditions(pageRequest)
+        return discoveryContentsPage.map { DiscoveryContentsDto.fromEntity(it) }
     }
 
     @Transactional
