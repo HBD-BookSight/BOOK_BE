@@ -1,5 +1,6 @@
 package com.hbd.book_be.dto.request
 
+import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 data class BookCreateRequest(
@@ -12,7 +13,10 @@ data class BookCreateRequest(
     val price: Int? = null,
     val titleImage: String? = null,
 
+    @field:Schema(defaultValue = "[]")
     val authorIdList: List<Long> = listOf(),
+
+    @field:Schema(defaultValue = "[]")
     val authorNameList: List<String> = listOf(),
     val publisherId: Long? = null,
     val publisherName: String? = null

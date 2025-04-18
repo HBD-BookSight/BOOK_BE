@@ -7,6 +7,7 @@ import com.hbd.book_be.enums.ContentType
 
 data class ContentsDto(
     val id: Long,
+    val title: String?,
     val type: ContentType,
     val urls: List<UrlInfo>,
     val image: String?,
@@ -22,6 +23,7 @@ data class ContentsDto(
 
             return ContentsDto(
                 id = contents.id!!,
+                title = contents.title,
                 type = contents.type,
                 urls = contents.urls,
                 image = contents.image,
@@ -32,6 +34,7 @@ data class ContentsDto(
 
     data class Detail(
         val id: Long,
+        val title: String?,
         val type: ContentType,
         val urls: List<UrlInfo>,
         val image: String?,
@@ -57,6 +60,7 @@ data class ContentsDto(
 
                 return Detail(
                     id = contents.id!!,
+                    title = contents.title,
                     type = contents.type,
                     urls = contents.urls,
                     image = contents.image,

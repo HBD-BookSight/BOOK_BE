@@ -51,7 +51,7 @@ class EventService(
     @Transactional(readOnly = true)
     fun getEvents(page: Int, limit: Int, searchRequest: EventSearchRequest): Page<EventDto> {
         val pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "startDate"))
-        val eventPage = eventRepository.findEventsWithConditions(searchRequest, pageRequest)
+        val eventPage = eventRepository.findAllActiveWithConditions(searchRequest, pageRequest)
         return eventPage.map { EventDto.fromEntity(it) }
     }
 
@@ -95,6 +95,8 @@ class EventService(
             eventType = eventCreateRequest.eventType,
             eventFlag = eventCreateRequest.eventFlag,
             isPosting = eventCreateRequest.isPosting,
+            bookTitle = eventCreateRequest.bookTitle,
+            senderName = eventCreateRequest.senderName,
             senderEmail = eventCreateRequest.senderEmail,
             senderMessage = eventCreateRequest.senderMessage,
             memo = eventCreateRequest.memo,

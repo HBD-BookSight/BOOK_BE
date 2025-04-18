@@ -36,11 +36,17 @@ class Event(
     @Column(name = "urls", columnDefinition = "json")
     var urls: MutableList<UrlInfo> = mutableListOf(),
 
+    @Column(name = "book_title")
+    var bookTitle: String?,
+
+    @Column(name = "sender_name")
+    var senderName: String?,
+
     @Column(name = "sender_email")
-    var senderEmail: String? = null,
+    var senderEmail: String?,
 
     @Column(name = "sender_message")
-    var senderMessage: String? = null,
+    var senderMessage: String?,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "location")
@@ -63,7 +69,7 @@ class Event(
     var eventFlag: EventFlag,
 
     @Column(name = "memo")
-    var memo: String? = null,
+    var memo: String?,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
     val tagEventList: MutableList<TagEvent> = mutableListOf(),
@@ -92,14 +98,4 @@ class Event(
         tag.tagEventList.add(addedTag)
         this.tagEventList.add(addedTag)
     }
-
-    fun addUrl(url: String, type: String) {
-        this.urls.add(
-            UrlInfo(
-                url = url,
-                type = type,
-            )
-        )
-    }
-
 }

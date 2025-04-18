@@ -7,6 +7,7 @@ import com.hbd.book_be.domain.common.UrlInfo
 data class PublisherDto(
     val id: Long,
     val name: String,
+    val engName: String?,
     val logo: String?,
     val isOfficial: Boolean,
     val description: String?,
@@ -21,6 +22,7 @@ data class PublisherDto(
             return PublisherDto(
                 id = publisher.id!!,
                 name = publisher.name,
+                engName = publisher.engName,
                 logo = publisher.logo,
                 isOfficial = publisher.isOfficial,
                 description = publisher.description,
@@ -50,13 +52,17 @@ data class PublisherDto(
     data class Detail(
         val id: Long,
         val name: String,
+        val engName: String?,
         val logo: String?,
         val isOfficial: Boolean,
         val description: String?,
         val urls: List<UrlInfo>,
 
         @JsonProperty(value = "books")
-        val bookDtoList: List<BookDto>
+        val bookDtoList: List<BookDto>,
+
+        @JsonProperty(value = "tags")
+        val tagDtoList: List<TagDto>,
     ) {
         companion object {
             fun fromEntity(publisher: Publisher): Detail {
@@ -68,14 +74,20 @@ data class PublisherDto(
                     BookDto.fromEntity(it)
                 }
 
+                val tagDtoList = publisher.tagPublisherList.map {
+                    TagDto.fromEntity(it.tag)
+                }
+
                 return Detail(
                     id = publisher.id!!,
                     name = publisher.name,
+                    engName = publisher.engName,
                     logo = publisher.logo,
                     isOfficial = publisher.isOfficial,
                     description = publisher.description,
                     urls = publisher.urls,
-                    bookDtoList = bookDtoList
+                    bookDtoList = bookDtoList,
+                    tagDtoList = tagDtoList
                 )
             }
         }

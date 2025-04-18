@@ -22,11 +22,12 @@ class EventRepositoryCustomImpl(
     private val queryFactory: JPAQueryFactory
 ) : EventRepositoryCustom {
 
-    override fun findEventsWithConditions(searchRequest: EventSearchRequest, pageable: Pageable): Page<Event> {
+    override fun findAllActiveWithConditions(searchRequest: EventSearchRequest, pageable: Pageable): Page<Event> {
         val totalCount = queryFactory
             .select(event.count())
             .from(event)
             .where(
+                event.deletedAt.isNull,
                 eventFlagEq(searchRequest.eventFlag),
                 locationEq(searchRequest.location),
                 eventTypeEq(searchRequest.eventType),

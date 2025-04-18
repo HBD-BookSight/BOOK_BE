@@ -18,6 +18,7 @@ class ContactService(
     fun createContact(contactCreateRequest: ContactCreateRequest): ContactDto {
 
         val contact = Contact(
+            name = contactCreateRequest.name,
             message = contactCreateRequest.message,
             email = contactCreateRequest.email,
         )

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository
 class BookRepositoryCustomImpl(
     private val queryFactory: JPAQueryFactory
 ) : BookRepositoryCustom {
-    override fun findAllNonDeletedBook(pageable: Pageable): Page<Book> {
+    override fun findAllActive(pageable: Pageable): Page<Book> {
         val totalCount = queryFactory.select(book.count())
             .from(book)
             .where(book.deletedAt.isNull)

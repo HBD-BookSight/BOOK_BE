@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface BookRepositoryCustom {
-    fun findAllNonDeletedBook(pageable: Pageable): Page<Book>
+    fun findAllActive(pageable: Pageable): Page<Book>
 }

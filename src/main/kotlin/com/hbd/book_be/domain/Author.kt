@@ -20,10 +20,10 @@ class Author(
     var name: String,
 
     @Column(name = "description")
-    var description: String? = null,
+    var description: String?,
 
     @Column(name = "profile")
-    var profile: String? = null,
+    var profile: String?,
 
     @Column(name = "is_official")
     var isOfficial: Boolean = false,

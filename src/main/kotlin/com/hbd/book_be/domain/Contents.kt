@@ -10,6 +10,7 @@ import jakarta.persistence.*
     name = "contents",
     indexes = [
         Index(name = "idx_contents_type", columnList = "type"),
+        Index(name = "idx_contents_title", columnList = "title"),
         Index(name = "idx_contents_creator_id", columnList = "creator_id"),
         Index(name = "idx_contents_created_at", columnList = "created_at")
     ]
@@ -17,6 +18,9 @@ import jakarta.persistence.*
 class Contents(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
+
+    @Column(name = "title")
+    var title: String?,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -27,13 +31,13 @@ class Contents(
     var urls: MutableList<UrlInfo> = mutableListOf(),
 
     @Column(name = "image")
-    var image: String? = null,
+    var image: String?,
 
     @Column(name = "description")
-    var description: String? = null,
+    var description: String?,
 
     @Column(name = "memo")
-    var memo: String? = null,
+    var memo: String?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
@@ -70,14 +74,5 @@ class Contents(
         )
         this.bookContentsList.add(addedTagContents)
         book.bookContentsList.add(addedTagContents)
-    }
-
-    fun addUrl(url: String, type: String) {
-        this.urls.add(
-            UrlInfo(
-                url = url,
-                type = type,
-            )
-        )
     }
 }

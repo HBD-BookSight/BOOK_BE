@@ -6,5 +6,5 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface EventRepositoryCustom {
-    fun findEventsWithConditions(searchRequest: EventSearchRequest, pageable: Pageable): Page<Event>
+    fun findAllActiveWithConditions(searchRequest: EventSearchRequest, pageable: Pageable): Page<Event>
 }

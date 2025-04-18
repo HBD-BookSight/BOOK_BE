@@ -38,7 +38,7 @@ class BookService(
         val sort = Sort.by(sortDirection, orderBy)
         val pageRequest = PageRequest.of(page, limit, sort)
 
-        val bookPage = bookRepository.findAllNonDeletedBook(pageRequest)
+        val bookPage = bookRepository.findAllActive(pageRequest)
         return bookPage.map { BookDto.fromEntity(it) }
     }
 
@@ -121,7 +121,13 @@ class BookService(
         for (authorName in bookCreateRequest.authorNameList) {
             var author = authorRepository.findFirstByName(authorName).getOrNull()
             if (author == null) {
-                author = authorRepository.save(Author(name = authorName))
+                author = authorRepository.save(
+                    Author(
+                        name = authorName,
+                        description = null,
+                        profile = null
+                    )
+                )
             }
             authorList.add(author)
         }
@@ -139,7 +145,12 @@ class BookService(
             var publisher = publisherRepository.findByName(bookCreateRequest.publisherName!!)
             if (publisher == null) {
                 publisher = publisherRepository.save(
-                    Publisher(name = bookCreateRequest.publisherName)
+                    Publisher(
+                        name = bookCreateRequest.publisherName,
+                        engName = null,
+                        logo = null,
+                        description = null
+                    )
                 )
             }
             publisher

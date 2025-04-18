@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository
 class ContentsRepositoryCustomImpl(
     private val queryFactory: JPAQueryFactory
 ) : ContentsRepositoryCustom {
-    override fun findContentsWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents> {
+    override fun findAllActiveWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents> {
         val totalCount = queryFactory.select(contents.count())
             .from(contents)
             .where(

@@ -15,6 +15,9 @@ class Contact internal constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
+    @Column(name = "name")
+    var name: String?,
+
     @Column(nullable = false)
     var email: String,
 

@@ -18,8 +18,10 @@ class Tag (
     var tagContentsList: MutableList<TagContents> = mutableListOf(),
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "tag", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var tagEventList: MutableList<TagEvent> = mutableListOf()
+    var tagEventList: MutableList<TagEvent> = mutableListOf(),
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "tag", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var tagPublisherList: MutableList<TagPublisher> = mutableListOf(),
 ) : BaseTimeEntity(){
 
     fun getContentsList(): List<Contents> {
