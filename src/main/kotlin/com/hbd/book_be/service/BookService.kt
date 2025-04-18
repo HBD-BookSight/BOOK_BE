@@ -43,17 +43,17 @@ class BookService(
     }
 
     @Transactional(readOnly = true)
-    fun getBookDetail(isbn: String): BookDetailedDto {
+    fun getBookDetail(isbn: String): BookDto.Detail {
         val book = bookRepository.findById(isbn).getOrNull()
         if (book == null || book.deletedAt != null) {
             throw NotFoundException("Not found Book(isbn: $isbn)")
         }
 
-        return BookDetailedDto.fromEntity(book)
+        return BookDto.Detail.fromEntity(book)
     }
 
     @Transactional
-    fun createBook(bookCreateRequest: BookCreateRequest): BookDetailedDto {
+    fun createBook(bookCreateRequest: BookCreateRequest): BookDto.Detail {
         val authorList = getOrCreateAuthorList(bookCreateRequest)
         val publisher = getOrCreatePublisher(bookCreateRequest)
 
@@ -75,7 +75,7 @@ class BookService(
 
         bookRepository.save(book)
 
-        return BookDetailedDto.fromEntity(book)
+        return BookDto.Detail.fromEntity(book)
     }
 
     @Transactional(readOnly = true)
