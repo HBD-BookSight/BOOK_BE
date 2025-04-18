@@ -1,8 +1,9 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.domain.enums.EventFlag
-import com.hbd.book_be.domain.enums.EventLocation
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import jakarta.persistence.*
 import java.time.LocalDate
 
@@ -31,8 +32,9 @@ class Event(
     @JoinColumn(name = "creator_id", nullable = false)
     var creator: User,
 
-    @Column(name = "url", nullable = false)
-    var url: String,
+    @Convert(converter = UrlInfo.Converter::class)
+    @Column(name = "urls", columnDefinition = "json")
+    var urls: MutableList<UrlInfo> = mutableListOf(),
 
     @Column(name = "sender_email")
     var senderEmail: String? = null,
@@ -89,6 +91,15 @@ class Event(
         val addedTag = TagEvent(tag = tag, event = this)
         tag.tagEventList.add(addedTag)
         this.tagEventList.add(addedTag)
+    }
+
+    fun addUrl(url: String, type: String) {
+        this.urls.add(
+            UrlInfo(
+                url = url,
+                type = type,
+            )
+        )
     }
 
 }

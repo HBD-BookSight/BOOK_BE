@@ -1,13 +1,13 @@
 package com.hbd.book_be.dto.request
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.hbd.book_be.domain.enums.EventFlag
-import com.hbd.book_be.domain.enums.EventLocation
+import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import java.time.LocalDate
 
 data class EventCreateRequest(
     val title: String,
-    val url: String,
+    val urls: List<UrlInfo>,
     val host: String,
     val userId: Long,
     val location: EventLocation,

@@ -3,6 +3,8 @@ package com.hbd.book_be.repository
 import com.hbd.book_be.domain.Event
 import com.hbd.book_be.domain.QEvent.event
 import com.hbd.book_be.dto.request.EventSearchRequest
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import com.querydsl.core.types.Expression
 import com.querydsl.core.types.Order
 import com.querydsl.core.types.OrderSpecifier
@@ -63,11 +65,11 @@ class EventRepositoryCustomImpl(
         return PageImpl(result, pageable, totalCount ?: 0L)
     }
 
-    private fun eventFlagEq(eventFlag: com.hbd.book_be.domain.enums.EventFlag?): BooleanExpression? {
+    private fun eventFlagEq(eventFlag: EventFlag?): BooleanExpression? {
         return eventFlag?.let { event.eventFlag.eq(it) }
     }
 
-    private fun locationEq(location: com.hbd.book_be.domain.enums.EventLocation?): BooleanExpression? {
+    private fun locationEq(location: EventLocation?): BooleanExpression? {
         return location?.let { event.location.eq(it) }
     }
 

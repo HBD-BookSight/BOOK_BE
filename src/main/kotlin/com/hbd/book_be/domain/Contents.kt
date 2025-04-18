@@ -1,7 +1,8 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.enums.ContentType
 import jakarta.persistence.*
 
 @Entity
@@ -21,8 +22,9 @@ class Contents(
     @Column(name = "type", nullable = false)
     var type: ContentType,
 
-    @Column(name = "url", nullable = false)
-    var url: String,
+    @Convert(converter = UrlInfo.Converter::class)
+    @Column(name = "urls", columnDefinition = "json")
+    var urls: MutableList<UrlInfo> = mutableListOf(),
 
     @Column(name = "image")
     var image: String? = null,
@@ -68,5 +70,14 @@ class Contents(
         )
         this.bookContentsList.add(addedTagContents)
         book.bookContentsList.add(addedTagContents)
+    }
+
+    fun addUrl(url: String, type: String) {
+        this.urls.add(
+            UrlInfo(
+                url = url,
+                type = type,
+            )
+        )
     }
 }

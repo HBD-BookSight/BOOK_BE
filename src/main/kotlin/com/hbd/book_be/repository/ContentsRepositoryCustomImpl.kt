@@ -2,7 +2,7 @@ package com.hbd.book_be.repository
 
 import com.hbd.book_be.domain.Contents
 import com.hbd.book_be.domain.QContents.contents
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.enums.ContentType
 import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.querydsl.core.types.Expression
 import com.querydsl.core.types.Order

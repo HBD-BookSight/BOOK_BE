@@ -1,5 +1,6 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
@@ -21,8 +22,9 @@ class Publisher(
     @Column(name = "logo")
     var logo: String? = null,
 
-    @Column(name = "link", columnDefinition = "json")
-    var link: String? = null,
+    @Convert(converter = UrlInfo.Converter::class)
+    @Column(name = "urls", columnDefinition = "json")
+    var urls: MutableList<UrlInfo> = mutableListOf(),
 
     @Column(name = "description", length = 2000)
     var description: String? = null,
@@ -36,4 +38,13 @@ class Publisher(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "publisher", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookList: MutableList<Book> = mutableListOf()
 
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+    fun addUrl(url: String, type: String) {
+        this.urls.add(
+            UrlInfo(
+                url = url,
+                type = type,
+            )
+        )
+    }
+}

@@ -65,7 +65,7 @@ class ContentsService(
 
         val contents = Contents(
             type = contentsCreateRequest.type,
-            url = contentsCreateRequest.url,
+            urls = contentsCreateRequest.urls.toMutableList(),
             image = contentsCreateRequest.image,
             description = contentsCreateRequest.description,
             memo = contentsCreateRequest.memo,

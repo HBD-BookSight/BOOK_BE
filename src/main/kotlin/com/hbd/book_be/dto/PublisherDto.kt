@@ -2,6 +2,7 @@ package com.hbd.book_be.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.hbd.book_be.domain.Publisher
+import com.hbd.book_be.domain.common.UrlInfo
 
 data class PublisherDto(
     val id: Long,
@@ -9,7 +10,7 @@ data class PublisherDto(
     val logo: String?,
     val isOfficial: Boolean,
     val description: String?,
-    val link: String?,
+    val urls: List<UrlInfo>,
 ) {
     companion object {
         fun fromEntity(publisher: Publisher): PublisherDto {
@@ -23,7 +24,7 @@ data class PublisherDto(
                 logo = publisher.logo,
                 isOfficial = publisher.isOfficial,
                 description = publisher.description,
-                link = publisher.link,
+                urls = publisher.urls,
             )
         }
     }
@@ -52,7 +53,7 @@ data class PublisherDto(
         val logo: String?,
         val isOfficial: Boolean,
         val description: String?,
-        val link: String?,
+        val urls: List<UrlInfo>,
 
         @JsonProperty(value = "books")
         val bookDtoList: List<BookDto>
@@ -73,7 +74,7 @@ data class PublisherDto(
                     logo = publisher.logo,
                     isOfficial = publisher.isOfficial,
                     description = publisher.description,
-                    link = publisher.link,
+                    urls = publisher.urls,
                     bookDtoList = bookDtoList
                 )
             }

@@ -1,7 +1,7 @@
 package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.domain.enums.UserRole
+import com.hbd.book_be.enums.UserRole
 import jakarta.persistence.*
 
 @Entity
@@ -25,5 +25,5 @@ class User (
     @Column(nullable = false)
     var role: UserRole,
 
-) : BaseTimeEntity()
+    ) : BaseTimeEntity()
 

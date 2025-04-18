@@ -88,7 +88,7 @@ class EventService(
         var event = Event(
             title = eventCreateRequest.title,
             host = eventCreateRequest.host,
-            url = eventCreateRequest.url,
+            urls = eventCreateRequest.urls.toMutableList(),
             startDate = eventCreateRequest.startDate,
             endDate = eventCreateRequest.endDate,
             location = eventCreateRequest.location,
