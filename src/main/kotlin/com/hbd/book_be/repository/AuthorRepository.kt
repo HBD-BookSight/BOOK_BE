@@ -8,8 +8,9 @@ import org.springframework.data.jpa.repository.Query
 import java.util.*
 
 interface AuthorRepository : JpaRepository<Author, Long> {
+    @Query("select author from Author author where author.name = :name AND author.deletedAt IS NULL")
     fun findFirstByName(name: String): Optional<Author>
 
-    @Query("select author from Author author where author.isOfficial = true")
-    fun findAllOfficialAuthors(pageable: Pageable): Page<Author>
+    @Query("select author from Author author where author.isOfficial = true AND author.deletedAt IS NULL")
+    fun findAllActiveOfficialAuthors(pageable: Pageable): Page<Author>
 }

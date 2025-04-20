@@ -1,6 +1,6 @@
 package com.hbd.book_be.controller
 
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.enums.ContentType
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest

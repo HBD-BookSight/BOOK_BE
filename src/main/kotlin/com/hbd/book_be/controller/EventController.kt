@@ -1,7 +1,7 @@
 package com.hbd.book_be.controller
 
-import com.hbd.book_be.domain.enums.EventFlag
-import com.hbd.book_be.domain.enums.EventLocation
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.EventDto
 import com.hbd.book_be.dto.request.EventCreateRequest

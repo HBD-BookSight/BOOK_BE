@@ -1,7 +1,8 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.enums.ContentType
 import jakarta.persistence.*
 
 @Entity
@@ -9,6 +10,7 @@ import jakarta.persistence.*
     name = "contents",
     indexes = [
         Index(name = "idx_contents_type", columnList = "type"),
+        Index(name = "idx_contents_title", columnList = "title"),
         Index(name = "idx_contents_creator_id", columnList = "creator_id"),
         Index(name = "idx_contents_created_at", columnList = "created_at")
     ]
@@ -17,21 +19,25 @@ class Contents(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
+    @Column(name = "title")
+    var title: String?,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     var type: ContentType,
 
-    @Column(name = "url", nullable = false)
-    var url: String,
+    @Convert(converter = UrlInfo.Converter::class)
+    @Column(name = "urls", columnDefinition = "json")
+    var urls: MutableList<UrlInfo> = mutableListOf(),
 
     @Column(name = "image")
-    var image: String? = null,
+    var image: String?,
 
     @Column(name = "description")
-    var description: String? = null,
+    var description: String?,
 
     @Column(name = "memo")
-    var memo: String? = null,
+    var memo: String?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)

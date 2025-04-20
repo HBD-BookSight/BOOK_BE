@@ -23,7 +23,7 @@ class AuthorService(
     @Transactional(readOnly = true)
     fun getAuthors(page: Int, limit: Int): Page<AuthorDto> {
         val pageRequest = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name"))
-        val officialAuthorPage = authorRepository.findAllOfficialAuthors(pageRequest)
+        val officialAuthorPage = authorRepository.findAllActiveOfficialAuthors(pageRequest)
         return officialAuthorPage.map { AuthorDto.fromEntity(it) }
     }
 

@@ -2,7 +2,7 @@ package com.hbd.book_be.repository
 
 import com.hbd.book_be.domain.Contents
 import com.hbd.book_be.domain.QContents.contents
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.enums.ContentType
 import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.querydsl.core.types.Expression
 import com.querydsl.core.types.Order
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository
 class ContentsRepositoryCustomImpl(
     private val queryFactory: JPAQueryFactory
 ) : ContentsRepositoryCustom {
-    override fun findContentsWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents> {
+    override fun findAllActiveWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents> {
         val totalCount = queryFactory.select(contents.count())
             .from(contents)
             .where(

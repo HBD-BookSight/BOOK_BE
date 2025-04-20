@@ -2,8 +2,9 @@ package com.hbd.book_be.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.hbd.book_be.domain.Event
-import com.hbd.book_be.domain.enums.EventFlag
-import com.hbd.book_be.domain.enums.EventLocation
+import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import java.time.LocalDate
 
 data class EventDto(
@@ -11,7 +12,9 @@ data class EventDto(
     val title: String,
     val host: String,
     val creator: UserDto,
-    val url: String,
+    val urls: List<UrlInfo>,
+    val bookTitle: String?,
+    val senderName: String?,
     val senderEmail: String?,
     val senderMessage: String?,
     val location: EventLocation,
@@ -40,7 +43,9 @@ data class EventDto(
                 title = event.title,
                 host = event.host,
                 creator = UserDto.fromEntity(event.creator),
-                url = event.url,
+                urls = event.urls,
+                bookTitle = event.bookTitle,
+                senderName = event.senderName,
                 senderEmail = event.senderEmail,
                 senderMessage = event.senderMessage,
                 location = event.location,

@@ -28,16 +28,16 @@ class Book(
     var publishedDate: LocalDateTime,
 
     @Column(name = "detail_url")
-    var detailUrl: String? = null,
+    var detailUrl: String?,
 
     @Column(name = "translator")
-    var translator: String? = null,
+    var translator: String?,
 
     @Column(name = "price")
-    var price: Int? = null,
+    var price: Int?,
 
     @Column(name = "title_image")
-    var titleImage: String? = null,
+    var titleImage: String?,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),
@@ -89,6 +89,16 @@ class Book(
 
         this.bookAuthorList.remove(targetBookAuthor)
         targetBookAuthor.author.bookAuthorList.remove(targetBookAuthor)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Book) return false
+        return isbn == other.isbn
+    }
+
+    override fun hashCode(): Int {
+        return isbn.hashCode()
     }
 }
 

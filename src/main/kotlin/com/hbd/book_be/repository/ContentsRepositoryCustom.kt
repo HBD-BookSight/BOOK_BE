@@ -6,5 +6,5 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface ContentsRepositoryCustom {
-    fun findContentsWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents>
+    fun findAllActiveWithConditions(searchRequest: ContentsSearchRequest, pageable: Pageable): Page<Contents>
 }

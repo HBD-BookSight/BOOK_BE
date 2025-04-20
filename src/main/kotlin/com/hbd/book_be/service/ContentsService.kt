@@ -46,7 +46,7 @@ class ContentsService(
         val sort = Sort.by(sortDirection, orderBy)
         val pageRequest = PageRequest.of(page, limit, sort)
 
-        val contentsPage = contentsRepository.findContentsWithConditions(searchRequest, pageRequest)
+        val contentsPage = contentsRepository.findAllActiveWithConditions(searchRequest, pageRequest)
         return contentsPage.map { ContentsDto.fromEntity(it) }
     }
 
@@ -65,19 +65,20 @@ class ContentsService(
         val creator = userRepository.findById(contentsCreateRequest.creatorId)
             .orElseThrow { NotFoundException("Not found: User(${contentsCreateRequest.creatorId}") }
 
-        val tagsList = getOrCreateTagList(contentsCreateRequest)
+        val tagList = getOrCreateTagList(contentsCreateRequest.tagList)
         val bookList = bookRepository.findAllById(contentsCreateRequest.bookIsbnList)
 
         val contents = Contents(
             type = contentsCreateRequest.type,
-            url = contentsCreateRequest.url,
+            title = contentsCreateRequest.title,
+            urls = contentsCreateRequest.urls.toMutableList(),
             image = contentsCreateRequest.image,
             description = contentsCreateRequest.description,
             memo = contentsCreateRequest.memo,
             creator = creator
         )
 
-        tagsList.forEach {
+        tagList.forEach {
             contents.addTag(it)
         }
 
@@ -89,17 +90,17 @@ class ContentsService(
         return ContentsDto.fromEntity(saved)
     }
 
-    private fun getOrCreateTagList(contentsCreateRequest: ContentsCreateRequest): List<Tag> {
-        val tagList = mutableListOf<Tag>()
-        for (tagName in contentsCreateRequest.tagList) {
+    private fun getOrCreateTagList(tagList: List<String>): List<Tag> {
+        val newTagList = mutableListOf<Tag>()
+        for (tagName in tagList) {
             var tag = tagRepository.findByName(tagName)
             if (tag == null) {
                 tag = tagRepository.save(Tag(name = tagName))
             }
-            tagList.add(tag)
+            newTagList.add(tag)
         }
 
-        return tagList
+        return newTagList
     }
 
 }
