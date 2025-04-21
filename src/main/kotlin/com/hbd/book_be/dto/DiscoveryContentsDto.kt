@@ -2,13 +2,14 @@ package com.hbd.book_be.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.hbd.book_be.domain.DiscoveryContents
-import com.hbd.book_be.domain.enums.ContentType
+import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.enums.ContentType
 import java.time.LocalDateTime
 
 data class DiscoveryContentsDto(
     val id: Long,
     val type: ContentType,
-    val url: String,
+    val urls: List<UrlInfo>,
     val image: String?,
 
     @JsonProperty("creator")
@@ -22,7 +23,7 @@ data class DiscoveryContentsDto(
             return DiscoveryContentsDto(
                 id = contents.id!!,
                 type = contents.type,
-                url = contents.url,
+                urls = contents.urls,
                 image = contents.image,
                 creatorDto = UserDto.fromEntity(contents.creator),
                 createdAt = discoveryContents.createdAt
