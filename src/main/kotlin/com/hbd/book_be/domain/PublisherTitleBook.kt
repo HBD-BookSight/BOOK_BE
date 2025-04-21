@@ -5,8 +5,8 @@ import java.io.Serializable
 import java.time.LocalDateTime
 
 data class PublisherTitleBookId(
-    var book: Book,
-    var publisher: Publisher
+    var book: Book? = null,
+    var publisher: Publisher? = null
 ) : Serializable
 
 @Entity
@@ -14,7 +14,7 @@ data class PublisherTitleBookId(
 @Table(name = "publisher_title_book",
     indexes = [
         Index(name = "idx_publisher_title_book_created_date", columnList = "created_at"),
-        Index(name = "idx_publisher_title_book_publisher_id_rank", columnList = "publisher_id, rank")
+        Index(name = "idx_publisher_title_book_publisher_id_rank", columnList = "publisher_id, `rank`")
     ])
 class PublisherTitleBook(
 

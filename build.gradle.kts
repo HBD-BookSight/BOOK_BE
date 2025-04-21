@@ -40,6 +40,7 @@ dependencies {
 
     // DB
     runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("com.oracle.database.jdbc:ojdbc11:23.3.0.23.09")
 
     // QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")

@@ -28,20 +28,19 @@ class Book(
     var publishedDate: LocalDateTime,
 
     @Column(name = "detail_url")
-    var detailUrl: String? = null,
+    var detailUrl: String?,
 
     @Column(name = "translator")
-    var translator: String? = null,
+    var translator: String?,
 
     @Column(name = "price")
-    var price: Int? = null,
+    var price: Int?,
 
     @Column(name = "title_image")
-    var titleImage: String? = null,
+    var titleImage: String?,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    var author: Author,
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_id", nullable = false)
@@ -53,7 +52,7 @@ class Book(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookEventList: MutableList<BookEvent> = mutableListOf(),
 
-) : BaseTimeEntity() {
+    ) : BaseTimeEntity() {
 
     fun getContentsList(): List<Contents> {
         return this.bookContentsList.map { it.contents }
@@ -74,6 +73,32 @@ class Book(
         val addedBookEvent = BookEvent(book = this, event = event)
         this.bookEventList.add(addedBookEvent)
         event.bookEventList.add(addedBookEvent)
+    }
+
+    fun addAuthor(author: Author) {
+        val bookAuthor = BookAuthor(book = this, author = author)
+        this.bookAuthorList.add(bookAuthor)
+        author.bookAuthorList.add(bookAuthor)
+    }
+
+    fun removeAuthor(author: Author) {
+        val targetBookAuthor = this.bookAuthorList.find { it.author.id == author.id }
+        if (targetBookAuthor == null) {
+            return
+        }
+
+        this.bookAuthorList.remove(targetBookAuthor)
+        targetBookAuthor.author.bookAuthorList.remove(targetBookAuthor)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Book) return false
+        return isbn == other.isbn
+    }
+
+    override fun hashCode(): Int {
+        return isbn.hashCode()
     }
 }
 

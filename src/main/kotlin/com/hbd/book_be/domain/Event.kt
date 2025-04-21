@@ -1,10 +1,11 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.domain.enums.EventFlag
-import com.hbd.book_be.domain.enums.EventLocation
+import com.hbd.book_be.enums.EventFlag
+import com.hbd.book_be.enums.EventLocation
 import jakarta.persistence.*
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Entity
 @Table(
@@ -24,21 +25,28 @@ class Event(
     @Column(name = "title", nullable = false)
     var title: String,
 
-    @Column(name = "owner", nullable = false)
-    var owner: String,
+    @Column(name = "host", nullable = false)
+    var host: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     var creator: User,
 
-    @Column(name = "url", nullable = false)
-    var url: String,
+    @Convert(converter = UrlInfo.Converter::class)
+    @Column(name = "urls", columnDefinition = "json")
+    var urls: MutableList<UrlInfo> = mutableListOf(),
+
+    @Column(name = "book_title")
+    var bookTitle: String?,
+
+    @Column(name = "sender_name")
+    var senderName: String?,
 
     @Column(name = "sender_email")
-    var senderEmail: String? = null,
+    var senderEmail: String?,
 
     @Column(name = "sender_message")
-    var senderMessage: String? = null,
+    var senderMessage: String?,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "location")
@@ -48,10 +56,10 @@ class Event(
     var isPosting: Boolean,
 
     @Column(name = "start_date", nullable = false)
-    var startDate: LocalDateTime,
+    var startDate: LocalDate,
 
     @Column(name = "end_date")
-    var endDate: LocalDateTime,
+    var endDate: LocalDate,
 
     @Column(name = "event_type")
     var eventType: String,
@@ -61,7 +69,7 @@ class Event(
     var eventFlag: EventFlag,
 
     @Column(name = "memo")
-    var memo: String? = null,
+    var memo: String?,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "event", cascade = [CascadeType.ALL], orphanRemoval = true)
     val tagEventList: MutableList<TagEvent> = mutableListOf(),
@@ -77,10 +85,8 @@ class Event(
 
     fun addBook(book: Book) {
         val addedBook = BookEvent(book = book, event = this)
-        bookEventList.add(addedBook)
-        bookEventList.forEach {
-            it.book.addEvent(this)
-        }
+        this.bookEventList.add(addedBook)
+        book.bookEventList.add(addedBook)
     }
 
     fun getTagList(): List<Tag> {
@@ -92,5 +98,4 @@ class Event(
         tag.tagEventList.add(addedTag)
         this.tagEventList.add(addedTag)
     }
-
 }

@@ -4,8 +4,8 @@ import jakarta.persistence.*
 import java.io.Serializable
 
 data class BookContentsId(
-    var contents: Contents,
-    var book: Book
+    var contents: Contents? = null,
+    var book: Book? = null
 ) : Serializable
 
 @Entity

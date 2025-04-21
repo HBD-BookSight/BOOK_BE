@@ -1,8 +1,9 @@
-package com.hbd.book_be.domain.enums
+package com.hbd.book_be.enums
 
 enum class ContentType {
     VIDEO,
     ARTICLE,
     PODCAST,
-    LINK
+    LINK,
+    SNS
 }
