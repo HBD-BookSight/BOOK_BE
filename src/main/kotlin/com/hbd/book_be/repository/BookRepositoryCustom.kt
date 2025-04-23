@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface BookRepositoryCustom {
-    fun findAllActive(pageable: Pageable): Page<Book>
+    fun findAllActive(keyword: String?, pageable: Pageable): Page<Book>
 }

@@ -33,12 +33,18 @@ class BookService(
     private val recommendedBookRepository: RecommendedBookRepository
 ) {
     @Transactional(readOnly = true)
-    fun getBooks(page: Int, limit: Int, orderBy: String, direction: String): Page<BookDto> {
+    fun getBooks(
+        keyword: String?,
+        page: Int,
+        limit: Int,
+        orderBy: String,
+        direction: String
+    ): Page<BookDto> {
         val sortDirection = Sort.Direction.fromString(direction)
         val sort = Sort.by(sortDirection, orderBy)
         val pageRequest = PageRequest.of(page, limit, sort)
 
-        val bookPage = bookRepository.findAllActive(pageRequest)
+        val bookPage = bookRepository.findAllActive(keyword, pageRequest)
         return bookPage.map { BookDto.fromEntity(it) }
     }
 
