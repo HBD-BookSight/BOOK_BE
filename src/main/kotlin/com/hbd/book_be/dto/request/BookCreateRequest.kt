@@ -9,9 +9,10 @@ data class BookCreateRequest(
     val summary: String,
     val publishedDate: LocalDateTime,
     val detailUrl: String?,
-    val translator: String? = null,
+    val translator: List<String>? = null,
     val price: Int? = null,
     val titleImage: String? = null,
+    val status: String? = null,
 
     @field:Schema(defaultValue = "[]")
     val authorIdList: List<Long> = listOf(),

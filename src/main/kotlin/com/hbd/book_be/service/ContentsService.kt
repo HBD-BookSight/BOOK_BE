@@ -5,7 +5,6 @@ import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
-import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.*
 import org.springframework.data.domain.Page
@@ -40,13 +39,12 @@ class ContentsService(
         limit: Int,
         orderBy: String,
         direction: String,
-        searchRequest: ContentsSearchRequest
     ): Page<ContentsDto> {
         val sortDirection = Sort.Direction.fromString(direction)
         val sort = Sort.by(sortDirection, orderBy)
         val pageRequest = PageRequest.of(page, limit, sort)
 
-        val contentsPage = contentsRepository.findAllActiveWithConditions(searchRequest, pageRequest)
+        val contentsPage = contentsRepository.findAllActive(pageRequest)
         return contentsPage.map { ContentsDto.fromEntity(it) }
     }
 
@@ -69,7 +67,6 @@ class ContentsService(
         val bookList = bookRepository.findAllById(contentsCreateRequest.bookIsbnList)
 
         val contents = Contents(
-            type = contentsCreateRequest.type,
             title = contentsCreateRequest.title,
             urls = contentsCreateRequest.urls.toMutableList(),
             image = contentsCreateRequest.image,

@@ -10,7 +10,7 @@ data class BookDto(
     val publishedDate: LocalDateTime,
     val titleImage: String?,
     val authorList: List<AuthorDto.Simple>,
-    val translator: String?,
+    val translator: List<String>?,
     val price: Int?,
     val publisher: PublisherDto.Simple,
 ) {
@@ -65,8 +65,9 @@ data class BookDto(
         val publishedDate: LocalDateTime,
         val titleImage: String?,
         val authorList: List<AuthorDto.Simple>,
-        val translator: String?,
+        val translator: List<String>?,
         val price: Int?,
+        val status: String?,
         val publisher: PublisherDto.Simple,
         val contentsDtoList: List<ContentsDto>,
         val eventDtoList: List<EventDto>
@@ -97,6 +98,7 @@ data class BookDto(
                     authorList = authorList,
                     translator = book.translator,
                     price = book.price,
+                    status = book.status,
                     publisher = PublisherDto.Simple.fromEntity(book.publisher),
                     contentsDtoList = contentsDtoList,
                     eventDtoList = eventsDtoList
