@@ -1,5 +1,6 @@
 package com.hbd.book_be.domain
 
+import com.hbd.book_be.domain.converter.StringListConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -31,13 +32,17 @@ class Book(
     var detailUrl: String?,
 
     @Column(name = "translator")
-    var translator: String?,
+    @Convert(converter = StringListConverter::class)
+    var translator: List<String>?,
 
     @Column(name = "price")
     var price: Int?,
 
     @Column(name = "title_image")
     var titleImage: String?,
+
+    @Column(name = "status")
+    var status: String?,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),
