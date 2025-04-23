@@ -15,13 +15,19 @@ data class UrlInfo(
         private val objectMapper = jacksonObjectMapper()
 
         override fun convertToDatabaseColumn(attribute: List<UrlInfo>?): String? {
-            return attribute?.let { objectMapper.writeValueAsString(it) }
+            return if (attribute.isNullOrEmpty()) {
+                null
+            } else {
+                objectMapper.writeValueAsString(attribute)
+            }
         }
 
         override fun convertToEntityAttribute(dbData: String?): List<UrlInfo> {
-            return dbData?.let {
-                objectMapper.readValue(it, object : TypeReference<List<UrlInfo>>() {})
-            } ?: emptyList()
+            return if (dbData.isNullOrBlank() || dbData == "[]") {
+                emptyList()
+            } else {
+                objectMapper.readValue(dbData, object : TypeReference<List<UrlInfo>>() {})
+            }
         }
     }
 }
