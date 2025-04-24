@@ -18,10 +18,10 @@ class Book(
     @Column(name = "isbn", nullable = false, updatable = false)
     var isbn: String,
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 1000)
     var title: String,
 
-    @Column(name = "summary", nullable = false)
+    @Column(name = "summary", nullable = false, columnDefinition = "TEXT")
     var summary: String,
 
     @Column(name = "published_date", nullable = false)
