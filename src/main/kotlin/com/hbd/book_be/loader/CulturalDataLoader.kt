@@ -22,10 +22,10 @@ class CulturalDatasetLoader(
 
         println("📦 파싱 완료: ${requests.size}권")
 
-        // ✅ 500개씩 나눠서 저장 요청
-        requests.chunked(500).forEachIndexed { idx, chunk ->
+        // ✅ 10000개씩 나눠서 저장 요청
+        requests.chunked(10000).forEachIndexed { idx, chunk ->
             try {
-                dataLoaderService.saveBooksWithJpa(chunk)
+                dataLoaderService.saveBooksWithJdbc(chunk)
                 println("✅ ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
             } catch (e: Exception) {
                 println("❌ ${idx + 1}번째 청크 저장 실패: ${e.message}")
