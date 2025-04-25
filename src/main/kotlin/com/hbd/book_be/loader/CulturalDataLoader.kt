@@ -22,7 +22,7 @@ class CulturalDatasetLoader(
 
         println("📦 파싱 완료: ${requests.size}권")
 
-        // ✅ 10000개씩 나눠서 저장 요청
+        // 10000개씩 나눠서 저장 요청
         requests.chunked(10000).forEachIndexed { idx, chunk ->
             try {
                 dataLoaderService.saveBooksWithJdbc(chunk)
@@ -33,7 +33,6 @@ class CulturalDatasetLoader(
             }
         }
     }
-
 
     private fun loadCsvData(): List<CulturalBookDto> {
         val csvMapper = CsvMapper()
