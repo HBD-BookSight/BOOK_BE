@@ -72,6 +72,7 @@ class BookService(
             translator = bookCreateRequest.translator,
             price = bookCreateRequest.price,
             titleImage = bookCreateRequest.titleImage,
+            status = bookCreateRequest.status,
             publisher = publisher,
         )
 
