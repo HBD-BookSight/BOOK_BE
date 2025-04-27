@@ -20,13 +20,21 @@ class BookController(
 
     @GetMapping
     fun getBooks(
+        @RequestParam("keyword", required = false) keyword: String?,
         @RequestParam("page", defaultValue = "0") page: Int,
         @RequestParam("limit", defaultValue = "10") limit: Int,
         @RequestParam("orderBy", defaultValue = "publishedDate") orderBy: String,
         @RequestParam("direction", defaultValue = "desc") direction: String
     ): ResponseEntity<PageResponse<BookDto>> {
-        val pageBookDto = bookService.getBooks(page = page, limit = limit, orderBy = orderBy, direction = direction)
-        val pageBookResponse = PageResponse<BookDto>(
+        val pageBookDto = bookService.getBooks(
+            keyword = keyword,
+            page = page,
+            limit = limit,
+            orderBy = orderBy,
+            direction = direction
+        )
+        
+        val pageBookResponse = PageResponse(
             items = pageBookDto.content,
             totalCount = pageBookDto.totalElements,
             totalPages = pageBookDto.totalPages,
