@@ -44,18 +44,15 @@ class DataLoaderService(
     fun saveBooksWithJdbc(requests: List<BookCreateRequest>) {
         val books = mutableListOf<Book>()
         val bookAuthorPairs = mutableListOf<Pair<Int, Long>>()
-
-        val publisherCache = mutableMapOf<String, Long>()
-        val authorCache = mutableMapOf<String, Long>()
-
+        
         requests.forEachIndexed { index, req ->
             runCatching {
-                val publisherId = jdbcHelper.getOrInsertPublisherId(req.publisherName, publisherCache)
+                val publisherId = jdbcHelper.getOrInsertPublisherId(req.publisherName)
                 val book = jdbcHelper.createBookStub(req, publisherId)
                 books.add(book)
 
                 req.authorNameList.forEach { name ->
-                    val authorId = jdbcHelper.getOrInsertAuthorId(name, authorCache)
+                    val authorId = jdbcHelper.getOrInsertAuthorId(name)
                     bookAuthorPairs.add(index to authorId)
                 }
             }.onFailure {

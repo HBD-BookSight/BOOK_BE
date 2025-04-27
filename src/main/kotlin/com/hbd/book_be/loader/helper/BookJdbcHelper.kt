@@ -77,13 +77,13 @@ class BookJdbcHelper(
         })
     }
 
-    fun getOrInsertPublisherId(name: String?, cache: MutableMap<String, Long>): Long {
+    fun getOrInsertPublisherId(name: String?): Long {
         val key = name?.takeIf { it.isNotBlank() } ?: "알 수 없음"
-        return cache.getOrPut(key) { findOrInsertPublisher(key) }
+        return findOrInsertPublisher(key)
     }
 
-    fun getOrInsertAuthorId(name: String, cache: MutableMap<String, Long>): Long {
-        return cache.getOrPut(name) { findOrInsertAuthor(name) }
+    fun getOrInsertAuthorId(name: String): Long {
+        return findOrInsertAuthor(name)
     }
 
     private fun findOrInsertPublisher(name: String): Long {
