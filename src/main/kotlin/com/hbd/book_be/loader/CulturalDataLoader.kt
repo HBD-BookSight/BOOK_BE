@@ -5,30 +5,31 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
-import kotlinx.coroutines.*
 import org.springframework.boot.CommandLineRunner
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 
 @Component
 class CulturalDatasetLoader(
-    private val dataLoaderService: DataLoaderService
+    jdbcTemplate: JdbcTemplate,
 ) : CommandLineRunner {
 
-    override fun run(vararg args: String?) = runBlocking {
-        println("🚀 CulturalDatasetLoader 시작됨")
+    private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
+
+    override fun run(vararg args: String?) {
+        println("[🚀] CulturalDatasetLoader 시작")
 
         val dataList = loadCsvData()
         val requests = parseToRequests(dataList)
 
-        println("📦 파싱 완료: ${requests.size}권")
+        println("[📦] CSV 파싱 완료: ${requests.size}권")
 
-        // 10000개씩 나눠서 저장 요청
         requests.chunked(10000).forEachIndexed { idx, chunk ->
             try {
-                dataLoaderService.saveBooksWithJdbc(chunk)
-                println("✅ ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
+                jdbcRepository.saveBooksWithJdbc(chunk)
+                println("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
             } catch (e: Exception) {
-                println("❌ ${idx + 1}번째 청크 저장 실패: ${e.message}")
+                println("[❌] ${idx + 1}번째 청크 저장 실패: ${e.message}")
                 e.printStackTrace()
             }
         }
@@ -42,34 +43,32 @@ class CulturalDatasetLoader(
         return reader.readValues<CulturalBookDto>(inputStream).readAll()
     }
 
-    private suspend fun parseToRequests(dataList: List<CulturalBookDto>): List<BookCreateRequest> =
-        withContext(Dispatchers.Default) {
-            dataList.map { dto ->
-                async {
-                    try {
-                        val rawDate = (dto.pblicteDe ?: dto.twoPblicteDe)?.takeIf { it.isNotBlank() } ?: "1001-01-01"
-                        val parsedDate = DateUtil.parseFlexibleDate(rawDate)
-                        val (authors, translators) = parseContributors(dto.authrNm)
+    private fun parseToRequests(dataList: List<CulturalBookDto>): List<BookCreateRequest> {
+        return dataList.mapNotNull { dto ->
+            try {
+                val rawDate = (dto.pblicteDe ?: dto.twoPblicteDe)
+                    ?.takeIf { it.isNotBlank() } ?: "1001-01-01"
+                val parsedDate = DateUtil.parseFlexibleDate(rawDate)
+                val (authors, translators) = parseContributors(dto.authrNm)
 
-                        BookCreateRequest(
-                            isbn = dto.isbnThirteenNo ?: dto.isbnNo ?: "UNKNOWN",
-                            title = dto.titleNm ?: "제목 없음",
-                            summary = dto.bookIntrcnCn ?: "",
-                            publishedDate = parsedDate,
-                            detailUrl = null,
-                            translator = translators.joinToString(", "),
-                            price = dto.prcValue?.toIntOrNull(),
-                            titleImage = dto.imageUrl,
-                            authorNameList = authors,
-                            publisherName = dto.publisherNm ?: "알 수 없음"
-                        )
-                    } catch (e: Exception) {
-                        println("⚠️ 파싱 실패: ${dto.titleNm} (${e.message})")
-                        null
-                    }
-                }
-            }.awaitAll().filterNotNull()
+                BookCreateRequest(
+                    isbn = dto.isbnThirteenNo ?: dto.isbnNo ?: "UNKNOWN",
+                    title = dto.titleNm ?: "제목 없음",
+                    summary = dto.bookIntrcnCn.orEmpty(),
+                    publishedDate = parsedDate,
+                    detailUrl = null,
+                    translator = translators.joinToString(", "),
+                    price = dto.prcValue?.toIntOrNull(),
+                    titleImage = dto.imageUrl,
+                    authorNameList = authors,
+                    publisherName = dto.publisherNm ?: "알 수 없음"
+                )
+            } catch (e: Exception) {
+                println("[⚠️] 파싱 실패: ${dto.titleNm} (${e.message})")
+                null
+            }
         }
+    }
 
     private fun parseContributors(raw: String?): Pair<List<String>, List<String>> {
         val authors = mutableListOf<String>()
@@ -81,7 +80,6 @@ class CulturalDatasetLoader(
                 person.contains("옮긴이") -> translators.add(person.replace("(옮긴이)", "").trim())
             }
         }
-
         return authors to translators
     }
 }
