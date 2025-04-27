@@ -2,7 +2,6 @@ package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.domain.core.BaseTimeEntity
-import com.hbd.book_be.enums.ContentType
 import jakarta.persistence.*
 
 @Entity
@@ -21,10 +20,6 @@ class Contents(
 
     @Column(name = "title")
     var title: String?,
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    var type: ContentType,
 
     @Convert(converter = UrlInfo.Converter::class)
     @Column(name = "urls", columnDefinition = "json")
