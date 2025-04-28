@@ -19,6 +19,9 @@ server:
       max: 200
       min-spare: 10
 
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY}
+  
 # Springdoc OpenAPI Configuration
 springdoc:
   swagger-ui:
