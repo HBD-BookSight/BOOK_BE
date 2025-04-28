@@ -1,6 +1,8 @@
 package com.hbd.book_be.domain.common
 
-import com.hbd.book_be.domain.converter.base.ListConverter
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter as _Converter
 
 data class UrlInfo(
@@ -9,7 +11,7 @@ data class UrlInfo(
 ) {
 
     @_Converter
-  class Converter : AttributeConverter<List<UrlInfo>, String> {
+    class Converter : AttributeConverter<List<UrlInfo>, String> {
         private val objectMapper = jacksonObjectMapper()
 
         override fun convertToDatabaseColumn(attribute: List<UrlInfo>?): String? {
