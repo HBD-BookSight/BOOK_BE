@@ -1,54 +1,141 @@
 package com.hbd.book_be.loader
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.hbd.book_be.client.KakaoBookSearchClient
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.dto.request.KakaoBookRequest
+import com.hbd.book_be.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Files
 import java.nio.file.Paths
 
 @Component
 class CulturalDatasetLoader(
-    // jdbcTemplate: JdbcTemplate, // 이제 필요 없음
+    jdbcTemplate: JdbcTemplate,
+    private val kakaoBookSearchClient: KakaoBookSearchClient
 ) : CommandLineRunner {
+    private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
+    private val mapper = jacksonObjectMapper().apply {
+        registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+    }
+    private val outputPath = Paths.get("src/main/resources/output/books.json")
+    private val snapshotPath = Paths.get("src/main/resources/output/enrichment_snapshot.json")
 
     override fun run(vararg args: String?) {
-        println("[🚀] CulturalDatasetLoader 시작")
+        val finalRequests = enrichAndSaveRequests()
 
-        val dataList = loadCsvData()
-        val requests = parseToRequests(dataList)
-
-        println("[📦] CSV 파싱 완료: ${requests.size}권")
-
-        saveAsJsonFile(requests)
+        finalRequests.chunked(10000).forEachIndexed { idx, chunk ->
+            try {
+                jdbcRepository.saveBooksWithJdbc(chunk)
+                println("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
+            } catch (e: Exception) {
+                println("[❌] ${idx + 1}번째 청크 저장 실패: ${e.message}")
+                e.printStackTrace()
+            }
+        }
     }
+
+    private fun enrichAndSaveRequests(): List<BookCreateRequest> {
+        val requests = parseToRequests(loadCsvData())
+        val snapshots = loadSnapshot()
+        val enrichedTitles = snapshots.filter { it.enriched }.map { it.title }.toSet()
+
+        println("[ℹ️] ${enrichedTitles.size}권은 enrich 완료된 상태입니다. 이어서 enrich합니다.")
+        val updatedSnapshots = snapshots.toMutableList()
+        val enrichedRequests = mutableListOf<BookCreateRequest>()
+
+        requests.forEach { request ->
+            if (enrichedTitles.contains(request.title)) {
+                println("[⏩] '${request.title}' enrich 완료, 스킵")
+                enrichedRequests.add(request)
+            } else {
+                val enrichedRequest = enrichBookRequest(request)
+                enrichedRequests.add(enrichedRequest)
+                appendRequestToJson(enrichedRequest)
+                updatedSnapshots.add(BookEnrichmentSnapshot(request.title, true))
+                saveSnapshot(updatedSnapshots)
+            }
+        }
+
+        return enrichedRequests
+    }
+
+    private fun enrichBookRequest(request: BookCreateRequest): BookCreateRequest {
+        val isIsbnSearchable = request.isbn != "UNKNOWN" && request.isbn.isNotBlank()
+
+        val kakaoRequest = KakaoBookRequest(
+            query = if (isIsbnSearchable) request.isbn else request.title,
+            target = if (isIsbnSearchable) "isbn" else "title",
+            size = 1
+        )
+
+        val kakaoResponse = kakaoBookSearchClient.searchBook(kakaoRequest)
+        val doc = kakaoResponse?.documents?.firstOrNull()
+        val publishedDate = doc?.datetime
+            ?.takeIf { it.length >= 10 }
+            ?.substring(0, 10)
+            ?.let { DateUtil.parseFlexibleDate(it) }
+            ?: DateUtil.parseFlexibleDate("0001-01-01") // 안전 디폴트 값
+
+        return if (doc != null) {
+            request.copy(
+                summary = doc.contents,
+                publishedDate = publishedDate,
+                detailUrl = doc.url,
+                translator = doc.translators.joinToString(", "),
+                price = doc.price,
+                titleImage = doc.thumbnail,
+                authorNameList = doc.authors,
+                publisherName = doc.publisher
+            )
+        } else {
+            println("[⚠️] '${request.title} ${request.isbn}' enrich 실패 (검색 결과 없음)")
+            request
+        }
+    }
+
+    private fun appendRequestToJson(newRequest: BookCreateRequest) {
+        val existingRequests = if (Files.exists(outputPath)) {
+            val json = Files.readString(outputPath)
+            mapper.readValue(json, object : TypeReference<List<BookCreateRequest>>() {})
+        } else {
+            emptyList()
+        }
+
+        val updatedRequests = existingRequests + newRequest
+        val jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(updatedRequests)
+        Files.createDirectories(outputPath.parent)
+        Files.writeString(outputPath, jsonString)
+    }
+
 
     private fun loadCsvData(): List<CulturalBookDto> {
         val csvMapper = CsvMapper()
         val schema = CsvSchema.emptySchema().withHeader()
-        val inputStream = javaClass.getResourceAsStream("/dataset/dataset.csv")
-        val reader = csvMapper.readerFor(CulturalBookDto::class.java).with(schema)
-        return reader.readValues<CulturalBookDto>(inputStream).readAll()
+        javaClass.getResourceAsStream("/dataset/dataset.csv")?.use { inputStream ->
+            val reader = csvMapper.readerFor(CulturalBookDto::class.java).with(schema)
+            return reader.readValues<CulturalBookDto>(inputStream).readAll()
+        } ?: throw IllegalStateException("CSV 파일을 찾을 수 없습니다.")
     }
 
     private fun parseToRequests(dataList: List<CulturalBookDto>): List<BookCreateRequest> {
         return dataList.mapNotNull { dto ->
             try {
-                val rawDate = (dto.pblicteDe ?: dto.twoPblicteDe)
-                    ?.takeIf { it.isNotBlank() } ?: "1001-01-01"
-                val parsedDate = DateUtil.parseFlexibleDate(rawDate)
                 val (authors, translators) = parseContributors(dto.authrNm)
-
                 BookCreateRequest(
                     isbn = dto.isbnThirteenNo ?: dto.isbnNo ?: "UNKNOWN",
                     title = dto.titleNm ?: "제목 없음",
                     summary = dto.bookIntrcnCn.orEmpty(),
-                    publishedDate = parsedDate,
+                    publishedDate = DateUtil.parseFlexibleDate(
+                        (dto.pblicteDe ?: dto.twoPblicteDe).takeIf { !it.isNullOrBlank() } ?: "1001-01-01"
+                    ),
                     detailUrl = null,
                     translator = translators.joinToString(", "),
                     price = dto.prcValue?.toIntOrNull(),
@@ -66,7 +153,6 @@ class CulturalDatasetLoader(
     private fun parseContributors(raw: String?): Pair<List<String>, List<String>> {
         val authors = mutableListOf<String>()
         val translators = mutableListOf<String>()
-
         raw?.split(",")?.map { it.trim() }?.forEach { person ->
             when {
                 person.contains("지은이") -> authors.add(person.replace("(지은이)", "").trim())
@@ -76,17 +162,21 @@ class CulturalDatasetLoader(
         return authors to translators
     }
 
-    private fun saveAsJsonFile(requests: List<BookCreateRequest>) {
-        val mapper = jacksonObjectMapper()
-            .registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
-
-        val jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(requests)
-
-        val outputPath = Paths.get("src/main/resources/output/books.json")
-        Files.createDirectories(outputPath.parent)
-        Files.writeString(outputPath, jsonString)
-
-        println("[📝] JSON 파일 저장 완료: ${outputPath.toAbsolutePath()}")
+    private fun loadSnapshot(): List<BookEnrichmentSnapshot> {
+        return if (Files.exists(snapshotPath)) {
+            val json = Files.readString(snapshotPath)
+            mapper.readValue(
+                json,
+                mapper.typeFactory.constructCollectionType(List::class.java, BookEnrichmentSnapshot::class.java)
+            )
+        } else {
+            emptyList()
+        }
     }
 
+    private fun saveSnapshot(snapshots: List<BookEnrichmentSnapshot>) {
+        val jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(snapshots)
+        Files.createDirectories(snapshotPath.parent)
+        Files.writeString(snapshotPath, jsonString)
+    }
 }
