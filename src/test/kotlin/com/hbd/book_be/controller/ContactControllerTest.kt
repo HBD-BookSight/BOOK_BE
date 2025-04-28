@@ -15,12 +15,13 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-@WebMvcTest(ContactController::class)
-@Import(ContactControllerTest.MockConfig::class)
+@WebMvcTest
+@Import(ContactController::class)
 @ActiveProfiles("test")
+
 class ContactControllerTest {
 
     @Autowired
@@ -42,40 +43,49 @@ class ContactControllerTest {
         every { contactService.getContacts() } returns contacts
 
         // when + then
-        mockMvc.get("/api/v1/contacts")
-            .andExpect {
-                status { isOk() }
-                jsonPath("$.items.size()") { value(2) }
-                jsonPath("$.items[0].name") { value("John Doe") }
-                jsonPath("$.items[1].name") { value("Jane Doe") }
-                jsonPath("$.length") { value(2) }
-            }
+        this.mockMvc.perform(get("/api/v1/contacts"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.items.size()").value(2))
+            .andExpect(jsonPath("$.items[0].name").value("John Doe"))
+            .andExpect(jsonPath("$.items[1].name").value("Jane Doe"))
+            .andExpect(jsonPath("$.length").value(2))
     }
 
     @Test
     fun `POST contact - success`() {
         // given
-        val request =
-            ContactCreateRequest(name = "New Contact", email = "new@example.com", message = "Nice to meet you!")
-        val response = ContactDto(name = "New Contact", email = "new@example.com", message = "Nice to meet you!")
+        val request = ContactCreateRequest(
+            name = "New Contact",
+            email = "new@example.com",
+            message = "Nice to meet you!"
+        )
+        val response = ContactDto(
+            name = "New Contact",
+            email = "new@example.com",
+            message = "Nice to meet you!"
+        )
         every { contactService.createContact(request) } returns response
 
+        val contactCreateRequest = ContactCreateRequest(
+            name = "New Contact",
+            email = "new@example.com",
+            message = "Nice to meet you!"
+        )
         // when + then
-        mockMvc.post("/api/v1/contacts") {
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(request)
-        }
-            .andExpect {
-                status { isOk() }
-                jsonPath("$.name") { value("New Contact") }
-                jsonPath("$.email") { value("new@example.com") }
-                jsonPath("$.message") { value("Nice to meet you!") }
-            }
+        this.mockMvc.perform(
+            post("/api/v1/contacts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(contactCreateRequest))
+        )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("New Contact"))
+            .andExpect(jsonPath("$.email").value("new@example.com"))
+            .andExpect(jsonPath("$.message").value("Nice to meet you!"))
     }
 
     @Configuration
     class MockConfig {
         @Bean
-        fun contactService(): ContactService = mockk()
+        fun contactService(): ContactService = mockk(relaxed = true)
     }
 }
