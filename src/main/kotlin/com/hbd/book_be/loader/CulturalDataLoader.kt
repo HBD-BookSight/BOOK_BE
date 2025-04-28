@@ -8,13 +8,14 @@ import com.hbd.book_be.util.DateUtil
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.nio.file.Files
+import java.nio.file.Paths
 
 @Component
 class CulturalDatasetLoader(
-    jdbcTemplate: JdbcTemplate,
+    // jdbcTemplate: JdbcTemplate, // 이제 필요 없음
 ) : CommandLineRunner {
-
-    private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
 
     override fun run(vararg args: String?) {
         println("[🚀] CulturalDatasetLoader 시작")
@@ -24,15 +25,7 @@ class CulturalDatasetLoader(
 
         println("[📦] CSV 파싱 완료: ${requests.size}권")
 
-        requests.chunked(10000).forEachIndexed { idx, chunk ->
-            try {
-                jdbcRepository.saveBooksWithJdbc(chunk)
-                println("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
-            } catch (e: Exception) {
-                println("[❌] ${idx + 1}번째 청크 저장 실패: ${e.message}")
-                e.printStackTrace()
-            }
-        }
+        saveAsJsonFile(requests)
     }
 
     private fun loadCsvData(): List<CulturalBookDto> {
@@ -82,4 +75,18 @@ class CulturalDatasetLoader(
         }
         return authors to translators
     }
+
+    private fun saveAsJsonFile(requests: List<BookCreateRequest>) {
+        val mapper = jacksonObjectMapper()
+            .registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+
+        val jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(requests)
+
+        val outputPath = Paths.get("src/main/resources/output/books.json")
+        Files.createDirectories(outputPath.parent)
+        Files.writeString(outputPath, jsonString)
+
+        println("[📝] JSON 파일 저장 완료: ${outputPath.toAbsolutePath()}")
+    }
+
 }
