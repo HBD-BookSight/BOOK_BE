@@ -19,7 +19,6 @@ class ContactServiceTest {
     @Test
     @DisplayName("Contact를 생성해야 한다.")
     fun createContactTest() {
-        // given
         val request = ContactCreateRequest(
             name = "John Doe",
             email = "john@example.com",
@@ -33,10 +32,8 @@ class ContactServiceTest {
             message = request.message
         )
 
-        // when
         val result = contactService.createContact(request)
 
-        // then
         assertThat(result.name).isEqualTo("John Doe")
         assertThat(result.email).isEqualTo("john@example.com")
         assertThat(result.message).isEqualTo("Hello!")
@@ -45,17 +42,15 @@ class ContactServiceTest {
     @Test
     @DisplayName("Contact를 createdAt 기준으로 최신순 조회해야 한다.")
     fun getContactsTest() {
-        // given
         val contacts = listOf(
             Contact(id = 1L, name = "User1", email = "user1@example.com", message = "Message1"),
             Contact(id = 2L, name = "User2", email = "user2@example.com", message = "Message2")
         )
+
         every { contactRepository.findAllByOrderByCreatedAtDesc() } returns contacts
 
-        // when
         val result = contactService.getContacts()
 
-        // then
         assertThat(result).hasSize(2)
         assertThat(result[0].name).isEqualTo("User1")
         assertThat(result[1].name).isEqualTo("User2")

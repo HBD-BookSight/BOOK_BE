@@ -31,7 +31,6 @@ class PublisherServiceTest {
     @Test
     @DisplayName("Publisher 목록을 조회해야 한다.")
     fun getPublishersTest() {
-        // given
         val publisher = Publisher(
             id = 1L,
             name = "PublisherA",
@@ -42,10 +41,8 @@ class PublisherServiceTest {
         )
         every { publisherRepository.findAllActive(any()) } returns PageImpl(listOf(publisher))
 
-        // when
         val result = publisherService.getPublishers()
 
-        // then
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].name).isEqualTo("PublisherA")
     }
@@ -53,7 +50,6 @@ class PublisherServiceTest {
     @Test
     @DisplayName("존재하는 Publisher 상세정보를 조회해야 한다.")
     fun getPublisherDetailTest() {
-        // given
         val publisher = Publisher(
             id = 1L,
             name = "PublisherA",
@@ -64,20 +60,16 @@ class PublisherServiceTest {
         )
         every { publisherRepository.findById(1L) } returns Optional.of(publisher)
 
-        // when
         val result = publisherService.getPublisherDetail(1L)
 
-        // then
         assertThat(result.name).isEqualTo("PublisherA")
     }
 
     @Test
     @DisplayName("존재하지 않는 Publisher 조회 시 예외를 던져야 한다.")
     fun getPublisherDetailNotFoundTest() {
-        // given
         every { publisherRepository.findById(1L) } returns Optional.empty()
 
-        // when & then
         assertThatThrownBy { publisherService.getPublisherDetail(1L) }
             .isInstanceOf(NotFoundException::class.java)
     }
@@ -85,7 +77,6 @@ class PublisherServiceTest {
     @Test
     @DisplayName("Publisher를 생성해야 한다.")
     fun createPublisherTest() {
-        // given
         val request = PublisherCreateRequest(
             name = "PublisherA",
             engName = "Publisher A",
@@ -93,16 +84,13 @@ class PublisherServiceTest {
             logo = "logo.png",
             memo = "Some memo",
             urls = listOf(
-                UrlInfo(
-                    url = "http://example.com",
-                    type = "example"
-                )
+                UrlInfo(url = "http://example.com", type = "example")
             ),
             tagList = listOf("Tag1", "Tag2"),
             bookIsbnList = listOf("123", "456")
         )
 
-        val dummyPublisherForBook = Publisher(
+        val dummyPublisher = Publisher(
             id = 2L,
             name = "DummyPublisher",
             engName = "DummyPublisher-ENG",
@@ -121,7 +109,7 @@ class PublisherServiceTest {
             price = 20000,
             titleImage = "http://image1.com",
             status = "PUBLISHED",
-            publisher = dummyPublisherForBook
+            publisher = dummyPublisher
         )
 
         val book2 = Book(
@@ -134,7 +122,7 @@ class PublisherServiceTest {
             price = 25000,
             titleImage = "http://image2.com",
             status = "PUBLISHED",
-            publisher = dummyPublisherForBook
+            publisher = dummyPublisher
         )
 
         val tag1 = Tag(id = 1L, name = "Tag1")
@@ -157,12 +145,40 @@ class PublisherServiceTest {
         every { bookRepository.findAllById(any<List<String>>()) } returns listOf(book1, book2)
         every { publisherRepository.save(any()) } returns savedPublisher
 
-        // when
         val result = publisherService.createPublisher(request)
 
-        // then
         assertThat(result).isNotNull
         assertThat(result.name).isEqualTo("PublisherA")
         assertThat(result.id).isEqualTo(100L)
+    }
+
+    @Test
+    @DisplayName("정렬 파라미터를 전달하면 정렬된 Publisher 페이지를 반환해야 한다.")
+    fun getPublishersWithSortingTest() {
+        val publisherA = Publisher(
+            id = 1L,
+            name = "Alpha",
+            engName = "A",
+            logo = null,
+            description = "First",
+            urls = mutableListOf(),
+            isOfficial = true
+        )
+
+        val publisherB = Publisher(
+            id = 2L,
+            name = "Beta",
+            engName = "B",
+            logo = null,
+            description = "Second",
+            urls = mutableListOf(),
+            isOfficial = true
+        )
+
+        every { publisherRepository.findAllActive(any()) } returns PageImpl(listOf(publisherB, publisherA))
+
+        val result = publisherService.getPublishers(page = 0, limit = 10, orderBy = "name", direction = "desc")
+
+        assertThat(result.content.map { it.name }).containsExactly("Beta", "Alpha")
     }
 }
