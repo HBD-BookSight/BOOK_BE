@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.time.LocalDateTime
 
-@WebMvcTest
+@WebMvcTest(PublisherController::class)
 @Import(PublisherController::class)
 @ActiveProfiles("test")
 class PublisherControllerTest {

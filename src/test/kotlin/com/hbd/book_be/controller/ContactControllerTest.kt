@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-@WebMvcTest
+@WebMvcTest(ContactController::class)
 @Import(ContactController::class)
 @ActiveProfiles("test")
 
@@ -53,7 +53,6 @@ class ContactControllerTest {
 
     @Test
     fun `POST contact - success`() {
-        // given
         val request = ContactCreateRequest(
             name = "New Contact",
             email = "new@example.com",
@@ -66,16 +65,10 @@ class ContactControllerTest {
         )
         every { contactService.createContact(request) } returns response
 
-        val contactCreateRequest = ContactCreateRequest(
-            name = "New Contact",
-            email = "new@example.com",
-            message = "Nice to meet you!"
-        )
-        // when + then
         this.mockMvc.perform(
             post("/api/v1/contacts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(contactCreateRequest))
+                .content(objectMapper.writeValueAsString(request))
         )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.name").value("New Contact"))
