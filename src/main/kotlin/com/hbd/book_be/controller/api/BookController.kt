@@ -1,7 +1,9 @@
-package com.hbd.book_be.controller
+package com.hbd.book_be.controller.api
 
+import com.hbd.book_be.aop.LogBookView
 import com.hbd.book_be.dto.*
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.exception.ErrorCodes
@@ -46,8 +48,11 @@ class BookController(
     }
 
     @GetMapping("/{isbn}")
-    fun getDetailedBook(@PathVariable isbn: String): ResponseEntity<BookDto.Detail> {
-        val bookDetailDto = bookService.getBookDetail(isbn)
+    @LogBookView
+    fun getDetailedBook(
+        @ModelAttribute request: BookDetailRequest
+    ): ResponseEntity<BookDto.Detail> {
+        val bookDetailDto = bookService.getBookDetail(request)
         return ResponseEntity.ok(bookDetailDto)
     }
 

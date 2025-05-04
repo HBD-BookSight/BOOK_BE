@@ -1,4 +1,4 @@
-package com.hbd.book_be.controller
+package com.hbd.book_be.controller.api
 
 import com.hbd.book_be.enums.EventFlag
 import com.hbd.book_be.enums.EventLocation
