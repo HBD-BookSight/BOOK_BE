@@ -55,7 +55,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book.addAuthor(author)
 
@@ -108,7 +108,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book1.addAuthor(author)
 
@@ -121,9 +121,9 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
 
-            )
+        )
         book2.deletedAt = LocalDateTime.now()
         book2.addAuthor(author)
 
@@ -168,7 +168,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book1.addAuthor(author)
 
@@ -181,7 +181,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book2.addAuthor(author)
 
@@ -235,7 +235,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book1.addAuthor(author)
 
@@ -248,7 +248,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book2.addAuthor(author)
 
@@ -300,7 +300,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book1.addAuthor(firstAuthor)
 
@@ -313,7 +313,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book2.addAuthor(secondAuthor)
 
@@ -368,7 +368,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book1.addAuthor(author)
 
@@ -381,7 +381,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         book2.addAuthor(author)
 
@@ -443,7 +443,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         targetBook1.addAuthor(otherAuthor)
 
@@ -456,7 +456,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         targetBook2.addAuthor(otherAuthor)
 
@@ -469,7 +469,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         targetBook3.addAuthor(targetAuthor)
 
@@ -482,7 +482,7 @@ class BookRepositoryTest {
             publishedDate = LocalDateTime.now(),
             detailUrl = null,
             translator = null,
-            titleImage = null,
+            titleImage = null, status = null
         )
         otherBook.addAuthor(otherAuthor)
 
