@@ -3,8 +3,12 @@ package com.hbd.book_be.service
 import com.hbd.book_be.domain.Author
 import com.hbd.book_be.domain.Book
 import com.hbd.book_be.domain.Publisher
-import com.hbd.book_be.dto.*
+import com.hbd.book_be.dto.BookDto
+import com.hbd.book_be.dto.ContentsDto
+import com.hbd.book_be.dto.EventDto
+import com.hbd.book_be.dto.RecommendedBookDto
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.AuthorRepository
 import com.hbd.book_be.repository.BookRepository
@@ -49,10 +53,10 @@ class BookService(
     }
 
     @Transactional(readOnly = true)
-    fun getBookDetail(isbn: String): BookDto.Detail {
-        val book = bookRepository.findById(isbn).getOrNull()
+    fun getBookDetail(request: BookDetailRequest): BookDto.Detail {
+        val book = bookRepository.findById(request.isbn).getOrNull()
         if (book == null || book.deletedAt != null) {
-            throw NotFoundException("Not found Book(isbn: $isbn)")
+            throw NotFoundException("Not found Book(isbn: ${request.isbn})")
         }
 
         return BookDto.Detail.fromEntity(book)
