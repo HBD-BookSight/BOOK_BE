@@ -39,6 +39,7 @@ class Book(
     @Column(name = "price")
     var price: Int?,
 
+    @Lob
     @Column(name = "title_image")
     var titleImage: String?,
 
