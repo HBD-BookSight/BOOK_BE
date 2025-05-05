@@ -22,6 +22,7 @@ class BookViewEventListener(
     fun handleBookViewEvent(event: BookViewEvent) {
         log.info("handle bookViewEvent: $event")
         val bookViewLog = BookViewLog(
+            requestId = event.requestId,
             isbn = event.isbn,
             title = event.title,
             status = event.status,

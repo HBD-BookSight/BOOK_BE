@@ -3,6 +3,7 @@ package com.hbd.book_be.event.model
 import java.time.LocalDateTime
 
 data class BookViewEvent(
+    val requestId: String,
     val isbn: String,
     val title: String,
     val userId: Long?,

@@ -14,19 +14,22 @@ class BookViewLog(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
+    @Column(name = "request_id", nullable = false)
+    val requestId: String,
+
     @Column(name = "isbn", nullable = false)
     val isbn: String,
 
     @Column(name = "title", nullable = false)
     val title: String,
 
-    @Column(name="status")
+    @Column(name = "status")
     val status: String,
 
-    @Column(name="error_message")
+    @Column(name = "error_message")
     val errorMessage: String?,
 
-    @Column(name="duration_ms")
+    @Column(name = "duration_ms")
     val durationMs: Long?,
 
     @Column(name = "user_id")
