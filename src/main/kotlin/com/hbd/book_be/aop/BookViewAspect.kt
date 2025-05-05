@@ -4,6 +4,7 @@ import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.event.model.BookViewEvent
 import com.hbd.book_be.event.publisher.EventPublisher
+import com.hbd.book_be.util.RequestContext
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -49,6 +50,7 @@ class BookViewAspect(
             if (bookDetail != null && bookDetail is BookDto.Detail) {
                 eventPublisher.publishEvent(
                     BookViewEvent(
+                        requestId = RequestContext.getRequestId(),
                         isbn = request.isbn,
                         title = bookDetail.title,
                         userId = null,
@@ -70,6 +72,7 @@ class BookViewAspect(
         try {
             eventPublisher.publishEvent(
                 BookViewEvent(
+                    requestId = RequestContext.getRequestId(),
                     isbn = request.isbn,
                     title = "Unknown",
                     userId = null,

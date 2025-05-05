@@ -4,6 +4,7 @@ import com.hbd.book_be.domain.BookViewLog
 import java.time.LocalDateTime
 
 data class BookViewLogDto(
+    val requestId: String,
     val isbn: String,
     val title: String,
     val userId: Long?,
@@ -18,6 +19,7 @@ data class BookViewLogDto(
     companion object {
         fun fromEntity(entity: BookViewLog): BookViewLogDto {
             return BookViewLogDto(
+                requestId = entity.requestId,
                 isbn=entity.isbn,
                 title=entity.title,
                 userId = entity.userId,
