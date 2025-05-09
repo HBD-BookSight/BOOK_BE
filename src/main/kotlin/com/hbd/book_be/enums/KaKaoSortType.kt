@@ -1,6 +1,9 @@
 package com.hbd.book_be.enums
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
+
 enum class SortType(val value: String) {
-    ACCURACY("accuracy"),
-    LATEST("latest")
+    ACCURACY("ACCURACY"),
+    LATEST("LATEST");
 }

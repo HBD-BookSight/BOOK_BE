@@ -53,7 +53,6 @@ class CulturalDatasetLoader(
 
         requests.forEach { request ->
             if (enrichedTitles.contains(request.title)) {
-                println("[⏩] '${request.title}' enrich 완료, 스킵")
                 enrichedRequests.add(request)
             } else {
                 val enrichedRequest = enrichBookRequest(request)
