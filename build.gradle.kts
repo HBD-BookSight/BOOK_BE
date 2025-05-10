@@ -33,6 +33,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // httpClient
+    implementation("org.apache.httpcomponents.client5:httpclient5")
+
+    // spring-retry
+    implementation("org.springframework.retry:spring-retry:2.0.11")
+
     // Springdoc OpenAPI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
 
@@ -51,6 +57,7 @@ dependencies {
     // csv loader
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2")
 
+    // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.batch:spring-batch-test")
