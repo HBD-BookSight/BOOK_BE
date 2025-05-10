@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    active: local
+
   application:
     name: BOOK_BE
 
@@ -13,9 +16,12 @@ spring:
 server:
   tomcat:
     threads:
-      max: 200                
-      min-spare: 10          
+      max: 200
+      min-spare: 10
 
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY}
+  
 # Springdoc OpenAPI Configuration
 springdoc:
   swagger-ui:
@@ -47,8 +53,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: true
-        format_sql: true
+        show_sql: false
+        format_sql: false
         default_batch_fetch_size: 100
 
 ---
