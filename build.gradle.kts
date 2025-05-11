@@ -31,7 +31,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // Springdoc OpenAPI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
@@ -47,9 +46,6 @@ dependencies {
     // QueryDSL
     implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
-
-
-    testImplementation("io.mockk:mockk:1.13.10")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

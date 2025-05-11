@@ -29,6 +29,6 @@ class ContactService(
 
     @Transactional(readOnly = true)
     fun getContacts(): List<ContactDto> {
-        return contactRepository.findAllByOrderByCreatedAtDesc().map { ContactDto.fromEntity(it) }
+        return contactRepository.findAll().map { ContactDto.fromEntity(it) }
     }
 }

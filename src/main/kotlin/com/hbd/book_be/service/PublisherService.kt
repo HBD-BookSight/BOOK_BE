@@ -49,7 +49,7 @@ class PublisherService(
     }
 
     @Transactional
-    fun createPublisher(publisherCreateRequest: PublisherCreateRequest): PublisherDto.Detail {
+    fun createPublisher(publisherCreateRequest: PublisherCreateRequest): PublisherDto.Detail? {
         val bookSet = mutableSetOf<Book>()
         val tagList = getOrCreateTagList(publisherCreateRequest.tagList)
         val bookList = bookRepository.findAllById(publisherCreateRequest.bookIsbnList)
@@ -93,9 +93,7 @@ class PublisherService(
         }
         publisher.bookList = bookSet.toMutableList()
 
-        val savedPublisher = publisherRepository.save(publisher)
-
-        return PublisherDto.Detail.fromEntity(savedPublisher)
+        return PublisherDto.Detail.fromEntity(publisher)
     }
 
     private fun getOrCreateTagList(tagList: List<String>): List<Tag> {
