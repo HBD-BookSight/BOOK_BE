@@ -19,10 +19,11 @@ class Book(
     @Column(name = "isbn", nullable = false, updatable = false)
     var isbn: String,
 
-    @Column(name = "title", nullable = false)
+    //length 최대 768 까지인 것을 확인 (265 보다 긴 title을 가진 외국도서들이 있음)
+    @Column(name = "title", nullable = false, length = 700)
     var title: String,
 
-    @Column(name = "summary", nullable = false)
+    @Column(name = "summary", nullable = false, columnDefinition = "TEXT")
     var summary: String,
 
     @Column(name = "published_date", nullable = false)

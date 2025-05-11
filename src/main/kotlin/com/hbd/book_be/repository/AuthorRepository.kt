@@ -13,4 +13,7 @@ interface AuthorRepository : JpaRepository<Author, Long> {
 
     @Query("select author from Author author where author.isOfficial = true AND author.deletedAt IS NULL")
     fun findAllActiveOfficialAuthors(pageable: Pageable): Page<Author>
+
+    fun findTopByNameAndDeletedAtIsNull(name: String): Author?
+
 }
