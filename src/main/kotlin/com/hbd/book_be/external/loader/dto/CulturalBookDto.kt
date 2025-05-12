@@ -1,4 +1,4 @@
-package com.hbd.book_be.loader.dto
+package com.hbd.book_be.external.loader.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

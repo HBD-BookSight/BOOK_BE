@@ -1,12 +1,15 @@
-package com.hbd.book_be.controller
+package com.hbd.book_be.external.kakao
 
 import com.hbd.book_be.dto.BookDto
-import com.hbd.book_be.dto.request.KakaoBookRequest
 import com.hbd.book_be.dto.response.ListResponse
-import com.hbd.book_be.service.KakaoBookService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/kakao/books")
@@ -16,7 +19,7 @@ class KakaoBookController(
 ) {
 
     @GetMapping
-    fun getBooks(@ModelAttribute request: KakaoBookRequest): ResponseEntity<ListResponse<BookDto>> {
+    fun getBooks(@ModelAttribute request: KakaoApiRequest): ResponseEntity<ListResponse<KakaoBookDto>> {
         val bookList = kakaoBookService.searchBook(request)
 
         val listResponse = ListResponse(

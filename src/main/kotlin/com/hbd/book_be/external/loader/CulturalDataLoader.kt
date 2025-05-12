@@ -1,14 +1,15 @@
-package com.hbd.book_be.loader
+package com.hbd.book_be.external.loader
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.hbd.book_be.client.KakaoBookSearchClient
+import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.dto.request.BookCreateRequest
-import com.hbd.book_be.dto.request.KakaoBookRequest
-import com.hbd.book_be.loader.dto.BookEnrichmentSnapshot
-import com.hbd.book_be.loader.dto.CulturalBookDto
+import com.hbd.book_be.external.kakao.KakaoApiRequest
+import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
+import com.hbd.book_be.external.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
@@ -23,7 +24,7 @@ class CulturalDatasetLoader(
 ) : CommandLineRunner {
     private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
     private val mapper = jacksonObjectMapper().apply {
-        registerModule(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+        registerModule(JavaTimeModule())
     }
     private val outputPath = Paths.get("src/main/resources/output/books.json")
     private val snapshotPath = Paths.get("src/main/resources/output/enrichment_snapshot.json")
@@ -69,7 +70,7 @@ class CulturalDatasetLoader(
     private fun enrichBookRequest(request: BookCreateRequest): BookCreateRequest {
         val isIsbnSearchable = request.isbn != "UNKNOWN" && request.isbn.isNotBlank()
 
-        val kakaoRequest = KakaoBookRequest(
+        val kakaoRequest = KakaoApiRequest(
             query = if (isIsbnSearchable) request.isbn else request.title,
             target = if (isIsbnSearchable) "isbn" else "title",
             size = 1

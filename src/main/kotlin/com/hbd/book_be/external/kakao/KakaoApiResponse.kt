@@ -1,6 +1,6 @@
-package com.hbd.book_be.dto.response
+package com.hbd.book_be.external.kakao
 
-data class KakaoBookResponse(
+data class KakaoApiResponse(
     val meta: Meta,
     val documents: List<Document>
 ) {

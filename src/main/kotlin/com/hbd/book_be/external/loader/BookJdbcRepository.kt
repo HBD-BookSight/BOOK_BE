@@ -1,4 +1,4 @@
-package com.hbd.book_be.loader
+package com.hbd.book_be.external.loader
 
 import com.hbd.book_be.domain.Book
 import com.hbd.book_be.domain.Publisher
