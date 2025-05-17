@@ -8,7 +8,6 @@ import jakarta.persistence.*
 @Table(
     name = "contents",
     indexes = [
-        Index(name = "idx_contents_type", columnList = "type"),
         Index(name = "idx_contents_title", columnList = "title"),
         Index(name = "idx_contents_creator_id", columnList = "creator_id"),
         Index(name = "idx_contents_created_at", columnList = "created_at")
