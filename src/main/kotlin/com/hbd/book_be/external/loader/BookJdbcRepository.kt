@@ -58,7 +58,8 @@ open class BookJdbcRepository(
                 description = null
             ),
             detailUrl = req.detailUrl,
-            translator = req.translator
+            translator = req.translator,
+            status = req.status
         )
     }
 
