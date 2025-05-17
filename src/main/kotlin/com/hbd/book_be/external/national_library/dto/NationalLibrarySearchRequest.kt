@@ -15,11 +15,11 @@ data class NationalLibrarySearchRequest(
 
     @Schema(description = "현재 쪽번호(페이지 1부터 시작)", required = true, defaultValue = "1")
     @RequestParam(required = true, defaultValue = "1")
-    val pageNo: Int = 1,
+    val pageNo: Long = 1,
 
     @Schema(description = "쪽당 출력건수", required = true, defaultValue = "10")
     @RequestParam(required = true, defaultValue = "10")
-    val pageSize: Int = 10,
+    val pageSize: Long = 10,
 
     @Schema(description = "ISBN", required = false)
     @RequestParam(required = false)
