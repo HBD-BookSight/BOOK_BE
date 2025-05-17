@@ -31,7 +31,6 @@ class BookViewAspect(
                 publishBookViewEvent(request, response, durationMs)
             }
 
-
             return response
         } catch (e: Exception) {
             val durationMs = System.currentTimeMillis() - startTime
