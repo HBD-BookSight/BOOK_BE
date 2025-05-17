@@ -15,11 +15,11 @@ data class NationalLibraryBookResponse(
 
     @Schema(description = "도서 목록")
     @JsonProperty("docs")
-    val docs: List<BookDocument> = emptyList()
+    val docs: List<NationalLibraryBook> = emptyList()
 )
 
 @Schema(description = "국립중앙도서관 도서 상세 정보")
-data class BookDocument(
+data class NationalLibraryBook(
     @Schema(description = "표제")
     @JsonProperty("TITLE")
     val title: String? = null,

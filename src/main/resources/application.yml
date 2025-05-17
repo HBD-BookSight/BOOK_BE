@@ -24,10 +24,13 @@ server:
       max: 200
       min-spare: 10
 
-
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
   search-url: https://dapi.kakao.com/v3/search/book
+
+national-library:
+  url: ${NATIONAL_LIBRARY_API_URL:https://www.nl.go.kr/seoji/SearchApi.do}
+  key: ${NATIONAL_LIBRARY_API_KEY}
 
 # Springdoc OpenAPI Configuration
 springdoc:
