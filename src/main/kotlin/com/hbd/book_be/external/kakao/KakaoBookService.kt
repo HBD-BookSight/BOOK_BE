@@ -64,7 +64,7 @@ class KakaoBookService(
                 publishedDate = parseDate(document.datetime),
                 titleImage = document.thumbnail,
                 authorList = authorList,
-                translator = document.translators.joinToString(", "),
+                translator = document.translators,
                 price = document.price,
                 publisher = PublisherDto.Simple(id = 0L, name = document.publisher)
             )
@@ -85,7 +85,7 @@ class KakaoBookService(
             summary = document.contents,
             publishedDate = parseDate(document.datetime),
             detailUrl = document.url,
-            translator = document.translators.joinToString(", "),
+            translator = document.translators,
             price = document.price,
             titleImage = document.thumbnail,
             authorNameList = document.authors,

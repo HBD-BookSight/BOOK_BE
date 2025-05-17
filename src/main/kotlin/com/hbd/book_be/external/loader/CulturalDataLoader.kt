@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Paths
 
-@Component
+//@Component
 class CulturalDatasetLoader(
     jdbcTemplate: JdbcTemplate,
     private val kakaoBookSearchClient: KakaoBookSearchClient
@@ -89,7 +89,7 @@ class CulturalDatasetLoader(
                 summary = doc.contents,
                 publishedDate = publishedDate,
                 detailUrl = doc.url,
-                translator = doc.translators.joinToString(", "),
+                translator = doc.translators,
                 price = doc.price,
                 titleImage = doc.thumbnail,
                 authorNameList = doc.authors,
@@ -137,7 +137,7 @@ class CulturalDatasetLoader(
                         (dto.pblicteDe ?: dto.twoPblicteDe).takeIf { !it.isNullOrBlank() } ?: "1001-01-01"
                     ),
                     detailUrl = null,
-                    translator = translators.joinToString(", "),
+                    translator = translators,
                     price = dto.prcValue?.toIntOrNull(),
                     titleImage = dto.imageUrl,
                     authorNameList = authors,
