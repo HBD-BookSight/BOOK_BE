@@ -21,7 +21,7 @@ class BookSearchAspect(
     private val log = LoggerFactory.getLogger(BookSearchAspect::class.java)
 
     @Around("@annotation(LogBookSearch)")
-    fun logBookSearch(joinPoint: ProceedingJoinPoint) {
+    fun logBookSearch(joinPoint: ProceedingJoinPoint): Any? {
         val request = joinPoint.args[0] as BookSearchRequest
 
         val startTime = System.currentTimeMillis()
@@ -62,6 +62,8 @@ class BookSearchAspect(
                     durationMs = durationMs
                 )
             }
+
+            return response
         } catch (e: Exception) {
             val durationMs = System.currentTimeMillis() - startTime
             publishBookSearchEvent(
