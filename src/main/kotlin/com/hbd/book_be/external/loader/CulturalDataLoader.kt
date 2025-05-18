@@ -8,6 +8,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hbd.book_be.config.properties.ExternalLoaderProperties
 import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.exception.ErrorCodes
+import com.hbd.book_be.exception.ValidationException
 import com.hbd.book_be.external.kakao.KakaoApiRequest
 import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.external.loader.dto.CulturalBookDto
@@ -137,7 +139,10 @@ class CulturalDatasetLoader(
         javaClass.getResourceAsStream("/dataset/dataset.csv")?.use { inputStream ->
             val reader = csvMapper.readerFor(CulturalBookDto::class.java).with(schema)
             return reader.readValues<CulturalBookDto>(inputStream).readAll()
-        } ?: throw IllegalStateException("CSV 파일을 찾을 수 없습니다.")
+        } ?: throw ValidationException(
+            message = "CSV 파일을 찾을 수 없습니다.",
+            errorCode = ErrorCodes.CSV_FILE_NOT_FOUND
+        )
     }
 
     private fun parseToRequests(dataList: List<CulturalBookDto>): List<BookCreateRequest> {
