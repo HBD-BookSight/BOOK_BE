@@ -12,6 +12,7 @@ import com.hbd.book_be.external.kakao.KakaoApiRequest
 import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.external.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
@@ -26,12 +27,18 @@ class CulturalDatasetLoader(
     private val loaderProperties: ExternalLoaderProperties
 
 ) : CommandLineRunner {
+    private val log = LoggerFactory.getLogger(CulturalDatasetLoader::class.java)
+
     private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
     private val mapper = jacksonObjectMapper().apply {
         registerModule(JavaTimeModule())
+        enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+        enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     }
-    private val outputPath = Paths.get("src/main/resources/output/books.json")
-    private val snapshotPath = Paths.get("src/main/resources/output/enrichment_snapshot.json")
+
+    private val outputPath = Paths.get(loaderProperties.outputPath)
+    private val snapshotPath = Paths.get(loaderProperties.snapshotPath)
+
 
     override fun run(vararg args: String?) {
         if (!loaderProperties.enabled) {
@@ -43,9 +50,9 @@ class CulturalDatasetLoader(
         finalRequests.chunked(loaderProperties.batchSize).forEachIndexed { idx, chunk ->
             try {
                 jdbcRepository.saveBooksWithJdbc(chunk)
-                println("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
+                log.info("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")
             } catch (e: Exception) {
-                println("[❌] ${idx + 1}번째 청크 저장 실패: ${e.message}")
+                log.info("[❌] ${idx + 1}번째 청크 저장 실패: ${e.message}")
                 e.printStackTrace()
             }
         }
@@ -56,7 +63,7 @@ class CulturalDatasetLoader(
         val snapshots = loadSnapshot()
         val enrichedTitles = snapshots.filter { it.enriched }.map { it.title }.toSet()
 
-        println("[ℹ️] ${enrichedTitles.size}권은 enrich 완료된 상태입니다. 이어서 enrich합니다.")
+        log.info("[ℹ️] ${enrichedTitles.size}권은 enrich 완료된 상태입니다. 이어서 enrich합니다.")
         val updatedSnapshots = snapshots.toMutableList()
         val enrichedRequests = mutableListOf<BookCreateRequest>()
 
@@ -97,14 +104,14 @@ class CulturalDatasetLoader(
                 summary = doc.contents,
                 publishedDate = publishedDate,
                 detailUrl = doc.url,
-                translator = doc.translators.joinToString(", "),
+                translator = doc.translators,
                 price = doc.price,
                 titleImage = doc.thumbnail,
                 authorNameList = doc.authors,
                 publisherName = doc.publisher
             )
         } else {
-            println("[⚠️] '${request.title} ${request.isbn}' enrich 실패 (검색 결과 없음)")
+            log.info("[⚠️] '${request.title} ${request.isbn}' enrich 실패 (검색 결과 없음)")
             request
         }
     }
@@ -145,14 +152,14 @@ class CulturalDatasetLoader(
                         (dto.pblicteDe ?: dto.twoPblicteDe).takeIf { !it.isNullOrBlank() } ?: "1001-01-01"
                     ),
                     detailUrl = null,
-                    translator = translators.joinToString(", "),
+                    translator = translators,
                     price = dto.prcValue?.toIntOrNull(),
                     titleImage = dto.imageUrl,
                     authorNameList = authors,
                     publisherName = dto.publisherNm ?: "알 수 없음"
                 )
             } catch (e: Exception) {
-                println("[⚠️] 파싱 실패: ${dto.titleNm} (${e.message})")
+                log.info("[⚠️] 파싱 실패: ${dto.titleNm} (${e.message})")
                 null
             }
         }

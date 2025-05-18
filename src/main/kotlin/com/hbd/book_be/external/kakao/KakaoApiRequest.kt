@@ -2,7 +2,7 @@ package com.hbd.book_be.external.kakao
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.hbd.book_be.enums.SortType
+import com.hbd.book_be.external.kakao.SortType
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "Kakao Book API 요청 객체")

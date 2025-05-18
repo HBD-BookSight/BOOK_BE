@@ -9,7 +9,7 @@ data class BookCreateRequest(
     val summary: String,
     val publishedDate: LocalDateTime,
     val detailUrl: String?,
-    val translator: String? = null,
+    val translator: List<String>? = null,
     val price: Int? = null,
     val titleImage: String? = null,
 

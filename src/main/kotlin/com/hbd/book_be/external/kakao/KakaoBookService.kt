@@ -1,10 +1,15 @@
 package com.hbd.book_be.external.kakao
 
+import com.hbd.book_be.domain.Author
+import com.hbd.book_be.domain.Publisher
 import com.hbd.book_be.dto.AuthorDto
 import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.exception.NotFoundException
+import com.hbd.book_be.repository.AuthorRepository
 import com.hbd.book_be.repository.BookRepository
+import com.hbd.book_be.repository.PublisherRepository
 import com.hbd.book_be.service.BookService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -12,6 +17,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class KakaoBookService(
@@ -19,7 +25,10 @@ class KakaoBookService(
     private val kakaoBookSearchClient: KakaoBookSearchClient,
     private val bookService: BookService,
     private val bookRepository: BookRepository,
-) {
+    private val publisherRepository: PublisherRepository,
+    private val authorRepository: AuthorRepository,
+
+    ) {
 
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
@@ -51,11 +60,10 @@ class KakaoBookService(
         val isbnList = documents.map { it.isbn }
         val existingIsbns = bookRepository.findByIsbnIn(isbnList).map { it.isbn }.toSet()
 
-        var globalIndex = startId
         return documents.map { document ->
-            val authorList = document.authors.mapIndexed { index, author ->
-                AuthorDto.Simple(id = globalIndex + index, name = author)
-            }
+
+            val authorList = getAuthorList(document)
+            val publisher = getPublisher(document)
 
             val book = BookDto(
                 isbn = document.isbn,
@@ -64,17 +72,15 @@ class KakaoBookService(
                 publishedDate = parseDate(document.datetime),
                 titleImage = document.thumbnail,
                 authorList = authorList,
-                translator = document.translators.joinToString(", "),
+                translator = document.translators,
                 price = document.price,
-                publisher = PublisherDto.Simple(id = 0L, name = document.publisher)
+                publisher = publisher
             )
 
             KakaoBookDto(
                 bookDto = book,
                 isExist = existingIsbns.contains(document.isbn)
-            ).also {
-                globalIndex++
-            }
+            )
         }
     }
 
@@ -85,7 +91,7 @@ class KakaoBookService(
             summary = document.contents,
             publishedDate = parseDate(document.datetime),
             detailUrl = document.url,
-            translator = document.translators.joinToString(", "),
+            translator = document.translators,
             price = document.price,
             titleImage = document.thumbnail,
             authorNameList = document.authors,
@@ -100,4 +106,23 @@ class KakaoBookService(
             LocalDateTime.now()
         }
     }
+
+    private fun getAuthorList(document: KakaoApiResponse.Document): List<AuthorDto.Simple> {
+        return document.authors.map { authorName ->
+            authorRepository.findFirstByName(authorName)
+                .orElse(null)
+                ?.let {
+                    AuthorDto.Simple(id = it.id ?: 0L, name = it.name)
+                } ?: AuthorDto.Simple(id = 0L, name = authorName)
+        }
+    }
+
+    private fun getPublisher(document: KakaoApiResponse.Document): PublisherDto.Simple {
+        return publisherRepository.findByName(document.publisher)
+            ?.let {
+                PublisherDto.Simple(id = it.id ?: 0L, name = it.name)
+            } ?: PublisherDto.Simple(id = 0L, name = document.publisher)
+    }
+
+
 }

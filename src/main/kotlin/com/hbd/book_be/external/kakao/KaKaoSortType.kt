@@ -1,4 +1,4 @@
-package com.hbd.book_be.enums
+package com.hbd.book_be.external.kakao
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue

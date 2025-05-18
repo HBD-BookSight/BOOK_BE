@@ -11,7 +11,7 @@ data class RecommendedBookDto(
     val publishedDate: LocalDateTime,
     val titleImage: String?,
     val authorList: List<AuthorDto>,
-    val translator: String?,
+    val translator: List<String>? = null,
     val price: Int?,
     val publisher: PublisherDto,
     val recommendedDate: LocalDate
