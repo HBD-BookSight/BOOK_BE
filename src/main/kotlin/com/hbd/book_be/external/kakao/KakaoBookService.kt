@@ -7,6 +7,7 @@ import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.exception.ErrorCodes
+import com.hbd.book_be.exception.KakaoBookInfoNotFoundException
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.exception.ValidationException
 import com.hbd.book_be.repository.AuthorRepository
@@ -38,9 +39,8 @@ class KakaoBookService(
     fun searchBook(request: KakaoApiRequest): List<KakaoBookDto> {
         val pageRequest = PageRequest.of(request.page, request.size)
         val response = kakaoBookSearchClient.searchBook(request)
-            ?: throw ValidationException(
+            ?: throw KakaoBookInfoNotFoundException(
                 message = "Kakao API에서 책 정보를 찾을 수 없습니다.",
-                errorCode = ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND
             )
         val globalIndex = pageRequest.pageNumber * pageRequest.pageSize + 1L
         return mapToBookDtos(response.documents, globalIndex)
@@ -50,9 +50,8 @@ class KakaoBookService(
     fun createBook(isbn: String): BookDto.Detail {
         val request = KakaoApiRequest(query = isbn, target = "isbn")
         val response = kakaoBookSearchClient.searchBook(request)
-            ?: throw ValidationException(
+            ?: throw KakaoBookInfoNotFoundException(
                 message = "Kakao API에서 책 정보를 찾을 수 없습니다.",
-                errorCode = ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND
             )
 
         if (response.documents.isEmpty()) {

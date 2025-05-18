@@ -27,6 +27,14 @@ class GlobalExceptionHandler {
         )
     }
 
+    @ExceptionHandler(KakaoBookInfoNotFoundException::class)
+    fun handleKakaoBookInfoNotFoundException(ex: KakaoBookInfoNotFoundException): ResponseEntity<ErrorResponse> {
+        log.error("Validation failed. Code=${ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND}, message=${ex.message}", ex)
+        return ResponseEntity.status(ex.status).body(
+            ErrorResponse(ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND, ex.message)
+        )
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): ResponseEntity<ErrorResponse> {
         log.error("Unhandled exception occurred. Code=${ErrorCodes.INTERNAL_SERVER_ERROR}, message=${ex.message}", ex)
