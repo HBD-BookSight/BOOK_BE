@@ -15,7 +15,6 @@ import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.external.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component

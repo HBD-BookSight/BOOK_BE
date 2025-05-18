@@ -27,6 +27,7 @@ server:
 
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
+  search-url: https://dapi.kakao.com/v3/search/book
 
 # Springdoc OpenAPI Configuration
 springdoc:
