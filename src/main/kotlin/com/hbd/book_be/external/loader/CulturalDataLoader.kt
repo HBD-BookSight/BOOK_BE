@@ -5,12 +5,14 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.hbd.book_be.config.properties.ExternalLoaderProperties
 import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.external.kakao.KakaoApiRequest
 import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.external.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
@@ -20,7 +22,9 @@ import java.nio.file.Paths
 @Component
 class CulturalDatasetLoader(
     jdbcTemplate: JdbcTemplate,
-    private val kakaoBookSearchClient: KakaoBookSearchClient
+    private val kakaoBookSearchClient: KakaoBookSearchClient,
+    private val loaderProperties: ExternalLoaderProperties
+
 ) : CommandLineRunner {
     private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
     private val mapper = jacksonObjectMapper().apply {
@@ -30,9 +34,13 @@ class CulturalDatasetLoader(
     private val snapshotPath = Paths.get("src/main/resources/output/enrichment_snapshot.json")
 
     override fun run(vararg args: String?) {
+        if (!loaderProperties.enabled) {
+            return
+        }
+
         val finalRequests = enrichAndSaveRequests()
 
-        finalRequests.chunked(10000).forEachIndexed { idx, chunk ->
+        finalRequests.chunked(loaderProperties.batchSize).forEachIndexed { idx, chunk ->
             try {
                 jdbcRepository.saveBooksWithJdbc(chunk)
                 println("[✅] ${idx + 1}번째 청크 저장 성공 (${chunk.size}권)")

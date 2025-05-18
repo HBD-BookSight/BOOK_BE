@@ -13,15 +13,21 @@ spring:
     init:
       mode: always
 
+  external:
+    loader:
+      enabled: false
+      batchSize: 10000
+
 server:
   tomcat:
     threads:
       max: 200
       min-spare: 10
 
+
 kakao:
   rest-api-key: ${KAKAO_REST_API_KEY}
-  
+
 # Springdoc OpenAPI Configuration
 springdoc:
   swagger-ui:
@@ -57,6 +63,11 @@ spring:
         format_sql: false
         default_batch_fetch_size: 100
 
+  external:
+    loader:
+      enabled: true
+      batchSize: 10000
+
 ---
 spring:
   config:
@@ -81,3 +92,8 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
+
+  external:
+    loader:
+      enabled: false
+      batchSize: 10000
