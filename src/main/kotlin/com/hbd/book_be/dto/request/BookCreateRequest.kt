@@ -12,6 +12,7 @@ data class BookCreateRequest(
     val translator: List<String>? = null,
     val price: Int? = null,
     val titleImage: String? = null,
+    val status: String? = null,
 
     @field:Schema(defaultValue = "[]")
     val authorIdList: List<Long> = listOf(),

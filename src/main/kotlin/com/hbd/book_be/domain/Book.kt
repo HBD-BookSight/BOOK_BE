@@ -39,8 +39,12 @@ class Book(
     @Column(name = "price")
     var price: Int?,
 
+    @Lob
     @Column(name = "title_image")
     var titleImage: String?,
+
+    @Column(name = "status")
+    var status: String?,
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "book", cascade = [CascadeType.ALL], orphanRemoval = true)
     var bookAuthorList: MutableList<BookAuthor> = mutableListOf(),

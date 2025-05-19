@@ -11,8 +11,9 @@ data class RecommendedBookDto(
     val publishedDate: LocalDateTime,
     val titleImage: String?,
     val authorList: List<AuthorDto>,
-    val translator: List<String>? = null,
+    val translator: List<String>?,
     val price: Int?,
+    val status: String?,
     val publisher: PublisherDto,
     val recommendedDate: LocalDate
 ) {
@@ -32,6 +33,7 @@ data class RecommendedBookDto(
                 authorList = authorList,
                 translator = book.translator,
                 price = book.price,
+                status = book.status,
                 publisher = PublisherDto.fromEntity(book.publisher),
                 recommendedDate = recommendedBook.recommendedDate
             )

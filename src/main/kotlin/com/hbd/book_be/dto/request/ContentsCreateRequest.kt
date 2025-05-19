@@ -1,11 +1,9 @@
 package com.hbd.book_be.dto.request
 
 import com.hbd.book_be.domain.common.UrlInfo
-import com.hbd.book_be.enums.ContentType
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ContentsCreateRequest(
-    val type: ContentType,
     val creatorId: Long,
     val title: String?,
     val image: String?,

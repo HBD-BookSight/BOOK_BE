@@ -3,8 +3,13 @@ package com.hbd.book_be.service
 import com.hbd.book_be.domain.Author
 import com.hbd.book_be.domain.Book
 import com.hbd.book_be.domain.Publisher
-import com.hbd.book_be.dto.*
+import com.hbd.book_be.dto.BookDto
+import com.hbd.book_be.dto.ContentsDto
+import com.hbd.book_be.dto.EventDto
+import com.hbd.book_be.dto.RecommendedBookDto
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.dto.request.BookDetailRequest
+import com.hbd.book_be.dto.request.BookSearchRequest
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.AuthorRepository
 import com.hbd.book_be.repository.BookRepository
@@ -33,20 +38,22 @@ class BookService(
     private val recommendedBookRepository: RecommendedBookRepository
 ) {
     @Transactional(readOnly = true)
-    fun getBooks(page: Int, limit: Int, orderBy: String, direction: String): Page<BookDto> {
-        val sortDirection = Sort.Direction.fromString(direction)
-        val sort = Sort.by(sortDirection, orderBy)
-        val pageRequest = PageRequest.of(page, limit, sort)
+    fun getBooks(
+        bookSearchRequest: BookSearchRequest
+    ): Page<BookDto> {
+        val sortDirection = Sort.Direction.fromString(bookSearchRequest.direction)
+        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy)
+        val pageRequest = PageRequest.of(bookSearchRequest.page, bookSearchRequest.limit, sort)
 
-        val bookPage = bookRepository.findAllActive(pageRequest)
+        val bookPage = bookRepository.findAllActive(bookSearchRequest.keyword, pageRequest)
         return bookPage.map { BookDto.fromEntity(it) }
     }
 
     @Transactional(readOnly = true)
-    fun getBookDetail(isbn: String): BookDto.Detail {
-        val book = bookRepository.findById(isbn).getOrNull()
+    fun getBookDetail(request: BookDetailRequest): BookDto.Detail {
+        val book = bookRepository.findById(request.isbn).getOrNull()
         if (book == null || book.deletedAt != null) {
-            throw NotFoundException("Not found Book(isbn: $isbn)")
+            throw NotFoundException("Not found Book(isbn: ${request.isbn})")
         }
 
         return BookDto.Detail.fromEntity(book)
@@ -66,6 +73,7 @@ class BookService(
             translator = bookCreateRequest.translator,
             price = bookCreateRequest.price,
             titleImage = bookCreateRequest.titleImage,
+            status = bookCreateRequest.status,
             publisher = publisher,
         )
 

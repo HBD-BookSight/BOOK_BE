@@ -1,10 +1,8 @@
-package com.hbd.book_be.controller
+package com.hbd.book_be.controller.api
 
-import com.hbd.book_be.enums.ContentType
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
-import com.hbd.book_be.dto.request.ContentsSearchRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.service.ContentsService
@@ -25,13 +23,8 @@ class ContentsController(
         @RequestParam("limit", defaultValue = "10") limit: Int,
         @RequestParam("orderBy", defaultValue = "createdAt") orderBy: String,
         @RequestParam("direction", defaultValue = "desc") direction: String,
-        @RequestParam("type", defaultValue = "VIDEO") type: ContentType?
     ): ResponseEntity<PageResponse<ContentsDto>> {
-
-        val searchRequest = ContentsSearchRequest(
-            type = type,
-        )
-        val pageContentsDto = contentsService.getContents(page, limit, orderBy, direction, searchRequest)
+        val pageContentsDto = contentsService.getContents(page, limit, orderBy, direction)
         val pageResponse = PageResponse<ContentsDto>(
             items = pageContentsDto.content,
             totalCount = pageContentsDto.totalElements,

@@ -1,7 +1,14 @@
-package com.hbd.book_be.controller
+package com.hbd.book_be.controller.api
 
-import com.hbd.book_be.dto.*
+import com.hbd.book_be.aop.LogBookSearch
+import com.hbd.book_be.aop.LogBookView
+import com.hbd.book_be.dto.BookDto
+import com.hbd.book_be.dto.ContentsDto
+import com.hbd.book_be.dto.EventDto
+import com.hbd.book_be.dto.RecommendedBookDto
 import com.hbd.book_be.dto.request.BookCreateRequest
+import com.hbd.book_be.dto.request.BookDetailRequest
+import com.hbd.book_be.dto.request.BookSearchRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.exception.ErrorCodes
@@ -19,14 +26,15 @@ class BookController(
 ) {
 
     @GetMapping
+    @LogBookSearch
     fun getBooks(
-        @RequestParam("page", defaultValue = "0") page: Int,
-        @RequestParam("limit", defaultValue = "10") limit: Int,
-        @RequestParam("orderBy", defaultValue = "publishedDate") orderBy: String,
-        @RequestParam("direction", defaultValue = "desc") direction: String
+        @ModelAttribute bookSearchRequest: BookSearchRequest
     ): ResponseEntity<PageResponse<BookDto>> {
-        val pageBookDto = bookService.getBooks(page = page, limit = limit, orderBy = orderBy, direction = direction)
-        val pageBookResponse = PageResponse<BookDto>(
+        val pageBookDto = bookService.getBooks(
+            bookSearchRequest
+        )
+
+        val pageBookResponse = PageResponse(
             items = pageBookDto.content,
             totalCount = pageBookDto.totalElements,
             totalPages = pageBookDto.totalPages,
@@ -38,8 +46,11 @@ class BookController(
     }
 
     @GetMapping("/{isbn}")
-    fun getDetailedBook(@PathVariable isbn: String): ResponseEntity<BookDto.Detail> {
-        val bookDetailDto = bookService.getBookDetail(isbn)
+    @LogBookView
+    fun getDetailedBook(
+        @ModelAttribute request: BookDetailRequest
+    ): ResponseEntity<BookDto.Detail> {
+        val bookDetailDto = bookService.getBookDetail(request)
         return ResponseEntity.ok(bookDetailDto)
     }
 
