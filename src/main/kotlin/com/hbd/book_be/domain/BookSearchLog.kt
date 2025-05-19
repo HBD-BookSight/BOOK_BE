@@ -23,7 +23,7 @@ data class BookSearchLog(
     @Column(name="duration_ms", nullable = false)
     val durationMs: Long,
 
-    @Column(name="error_message", nullable = true)
+    @Column(name="error_message", nullable = true, columnDefinition = "CLOB") // OCI DB doesn't support 'TEXT'
     val errorMessage: String?,
 
     @Column(name="search_date_time", nullable = false)
