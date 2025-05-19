@@ -56,6 +56,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book.addAuthor(author)
 
@@ -109,6 +110,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book1.addAuthor(author)
 
@@ -122,6 +124,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
 
             )
         book2.deletedAt = LocalDateTime.now()
@@ -169,6 +172,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book1.addAuthor(author)
 
@@ -182,6 +186,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book2.addAuthor(author)
 
@@ -236,6 +241,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book1.addAuthor(author)
 
@@ -249,6 +255,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book2.addAuthor(author)
 
@@ -301,6 +308,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book1.addAuthor(firstAuthor)
 
@@ -314,6 +322,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book2.addAuthor(secondAuthor)
 
@@ -369,6 +378,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book1.addAuthor(author)
 
@@ -382,6 +392,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         book2.addAuthor(author)
 
@@ -444,6 +455,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         targetBook1.addAuthor(otherAuthor)
 
@@ -457,6 +469,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         targetBook2.addAuthor(otherAuthor)
 
@@ -470,6 +483,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         targetBook3.addAuthor(targetAuthor)
 
@@ -483,6 +497,7 @@ class BookRepositoryTest {
             detailUrl = null,
             translator = null,
             titleImage = null,
+            status = null,
         )
         otherBook.addAuthor(otherAuthor)
 
