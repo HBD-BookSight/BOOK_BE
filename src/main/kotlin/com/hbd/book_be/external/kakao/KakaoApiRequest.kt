@@ -20,8 +20,8 @@ data class KakaoApiRequest @JsonCreator constructor(
     val sort: SortType = SortType.ACCURACY,
 
     @JsonProperty("page")
-    @Schema(description = "페이지 번호 (0부터 시작)", example = "0")
-    val page: Int = 0,
+    @Schema(description = "페이지 번호 (1부터 시작)", example = "1")
+    val page: Int = 1,
 
     @JsonProperty("size")
     @Schema(description = "한 페이지당 결과 개수", example = "10")

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Paths
 
-@Component
+//@Component
 class CulturalDatasetLoader(
     jdbcTemplate: JdbcTemplate,
     private val kakaoBookSearchClient: KakaoBookSearchClient,

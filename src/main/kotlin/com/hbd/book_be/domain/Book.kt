@@ -29,7 +29,7 @@ class Book(
     @Column(name = "published_date", nullable = false)
     var publishedDate: LocalDateTime,
 
-    @Column(name = "detail_url")
+    @Column(name = "detail_url", columnDefinition = "TEXT")
     var detailUrl: String?,
 
     @Column(name = "translator")
