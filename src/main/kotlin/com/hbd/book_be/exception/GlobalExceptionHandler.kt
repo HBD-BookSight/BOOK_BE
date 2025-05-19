@@ -29,7 +29,10 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(KakaoBookInfoNotFoundException::class)
     fun handleKakaoBookInfoNotFoundException(ex: KakaoBookInfoNotFoundException): ResponseEntity<ErrorResponse> {
-        log.error("Validation failed. Code=${ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND}, message=${ex.message}", ex)
+        log.error(
+            "Kakao book information not found. Code=${ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND}, message=${ex.message}",
+            ex
+        )
         return ResponseEntity.status(ex.status).body(
             ErrorResponse(ErrorCodes.KAKAO_BOOK_INFO_NOT_FOUND, ex.message)
         )

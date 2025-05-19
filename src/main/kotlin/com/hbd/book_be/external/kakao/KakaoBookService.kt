@@ -1,14 +1,10 @@
 package com.hbd.book_be.external.kakao
 
-import com.hbd.book_be.dto.AuthorDto
 import com.hbd.book_be.dto.BookDto
-import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.exception.KakaoBookInfoNotFoundException
 import com.hbd.book_be.exception.NotFoundException
-import com.hbd.book_be.repository.AuthorRepository
 import com.hbd.book_be.repository.BookRepository
-import com.hbd.book_be.repository.PublisherRepository
 import com.hbd.book_be.service.BookService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -22,10 +18,7 @@ class KakaoBookService(
     private val kakaoBookSearchClient: KakaoBookSearchClient,
     private val bookService: BookService,
     private val bookRepository: BookRepository,
-    private val publisherRepository: PublisherRepository,
-    private val authorRepository: AuthorRepository,
-
-    ) {
+) {
 
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
@@ -41,14 +34,18 @@ class KakaoBookService(
         val existingIsbns = bookRepository.findByIsbnIn(isbnList).map { it.isbn }.toSet()
 
         return response.documents.map { document ->
-            val isExistList = document.isbn.split(" ").map { existingIsbns.contains(it) }
+            val isbnSplit = document.isbn.split(" ")
+            val isbn10 = isbnSplit.find { it.length == 10 }
+            val isbn13 = isbnSplit.find { it.length == 13 }
 
             KakaoBookDto.fromKakaoApi(
                 document = document,
-                isExist = isExistList
+                isIsbn10Exist = isbn10?.let { existingIsbns.contains(it) } ?: false,
+                isIsbn13Exist = isbn13?.let { existingIsbns.contains(it) } ?: false
             )
         }
     }
+
 
     @Transactional
     fun createBook(isbn: String): BookDto.Detail {
@@ -88,23 +85,4 @@ class KakaoBookService(
             LocalDateTime.now()
         }
     }
-
-    private fun getAuthorList(document: KakaoApiResponse.Document): List<AuthorDto.Simple> {
-        return document.authors.map { authorName ->
-            authorRepository.findFirstByName(authorName)
-                .orElse(null)
-                ?.let {
-                    AuthorDto.Simple(id = it.id ?: 0L, name = it.name)
-                } ?: AuthorDto.Simple(id = 0L, name = authorName)
-        }
-    }
-
-    private fun getPublisher(document: KakaoApiResponse.Document): PublisherDto.Simple {
-        return publisherRepository.findByName(document.publisher)
-            ?.let {
-                PublisherDto.Simple(id = it.id ?: 0L, name = it.name)
-            } ?: PublisherDto.Simple(id = 0L, name = document.publisher)
-    }
-
-
 }
