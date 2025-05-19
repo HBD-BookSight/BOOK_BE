@@ -1,4 +1,7 @@
 spring:
+  profiles:
+    active: local
+
   application:
     name: BOOK_BE
 
@@ -10,11 +13,21 @@ spring:
     init:
       mode: always
 
+  external:
+    loader:
+      enabled: false
+      batchSize: 10
+
 server:
   tomcat:
     threads:
-      max: 200                
-      min-spare: 10          
+      max: 200
+      min-spare: 10
+
+
+kakao:
+  rest-api-key: ${KAKAO_REST_API_KEY}
+  search-url: https://dapi.kakao.com/v3/search/book
 
 # Springdoc OpenAPI Configuration
 springdoc:
@@ -47,9 +60,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: true
-        format_sql: true
+        show_sql: false
+        format_sql: false
         default_batch_fetch_size: 100
+
+  external:
+    loader:
+      enabled: true
+      batchSize: 10
 
 ---
 spring:
@@ -75,3 +93,8 @@ spring:
         show_sql: true
         format_sql: true
         default_batch_fetch_size: 100
+
+  external:
+    loader:
+      enabled: false
+      batchSize: 10
