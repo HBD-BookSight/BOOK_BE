@@ -16,7 +16,7 @@ spring:
   external:
     loader:
       enabled: false
-      batchSize: 10000
+      batchSize: 10
 
 server:
   tomcat:
@@ -67,7 +67,7 @@ spring:
   external:
     loader:
       enabled: true
-      batchSize: 10000
+      batchSize: 10
 
 ---
 spring:
@@ -97,4 +97,4 @@ spring:
   external:
     loader:
       enabled: false
-      batchSize: 10000
+      batchSize: 10
