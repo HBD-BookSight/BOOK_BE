@@ -13,10 +13,10 @@ spring:
     init:
       mode: always
 
-  external:
-    loader:
-      enabled: false
-      batchSize: 10
+external:
+  cultural-data-loader:
+    enabled: false
+    batchSize: 10
 
 server:
   tomcat:
