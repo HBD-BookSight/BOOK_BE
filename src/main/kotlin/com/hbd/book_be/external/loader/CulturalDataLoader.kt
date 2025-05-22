@@ -6,28 +6,35 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hbd.book_be.config.properties.ExternalLoaderProperties
-import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.exception.ErrorCodes
 import com.hbd.book_be.exception.ValidationException
 import com.hbd.book_be.external.kakao.KakaoApiRequest
+import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.external.loader.dto.BookEnrichmentSnapshot
 import com.hbd.book_be.external.loader.dto.CulturalBookDto
 import com.hbd.book_be.util.DateUtil
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Paths
 
-//@Component
+@Component
+@ConditionalOnProperty(
+    prefix = "external.cultural-data-loader",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = false
+)
 class CulturalDatasetLoader(
     jdbcTemplate: JdbcTemplate,
     private val kakaoBookSearchClient: KakaoBookSearchClient,
     private val loaderProperties: ExternalLoaderProperties
-
 ) : CommandLineRunner {
+
     private val log = LoggerFactory.getLogger(CulturalDatasetLoader::class.java)
 
     private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
@@ -40,11 +47,8 @@ class CulturalDatasetLoader(
     private val outputPath = Paths.get(loaderProperties.outputPath)
     private val snapshotPath = Paths.get(loaderProperties.snapshotPath)
 
-
     override fun run(vararg args: String?) {
-        if (!loaderProperties.enabled) {
-            return
-        }
+        log.info("[🚀] CulturalDatasetLoader 시작됨 (external-loader.enabled=true)")
 
         val finalRequests = enrichAndSaveRequests()
 
@@ -130,7 +134,6 @@ class CulturalDatasetLoader(
         Files.createDirectories(outputPath.parent)
         Files.writeString(outputPath, jsonString)
     }
-
 
     private fun loadCsvData(): List<CulturalBookDto> {
         val csvMapper = CsvMapper()
