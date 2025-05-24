@@ -23,13 +23,15 @@ class Book(
     @Column(name = "title", nullable = false, length = 700)
     var title: String,
 
-    @Column(name = "summary", nullable = false, columnDefinition = "CLOB") // OCI DB doesn't support 'TEXT'
+    @Lob
+    @Column(name = "summary", nullable = false) // OCI DB doesn't support 'TEXT'
     var summary: String,
 
     @Column(name = "published_date", nullable = false)
     var publishedDate: LocalDateTime,
 
-    @Column(name = "detail_url", columnDefinition = "CLOB") // OCI DB doesn't support 'TEXT'
+    @Lob
+    @Column(name = "detail_url") // OCI DB doesn't support 'TEXT'
     var detailUrl: String?,
 
     @Column(name = "translator")
