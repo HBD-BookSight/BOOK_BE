@@ -42,11 +42,14 @@ class CulturalDatasetLoader(
         registerModule(JavaTimeModule())
         enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
         enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     }
 
     private val outputPath = Paths.get(loaderProperties.outputPath)
     private val progressPath = Paths.get(loaderProperties.progressPath ?: "${loaderProperties.outputPath}.progress")
     private val csvChunkSize = 1000
+    private val totalFileCount = 32 // dataset-1.csv ~ dataset-32.csv
+    private val linesPerFile = 5000 // 각 dataset 파일의 예상 행 수
 
     override fun run(vararg args: String?) {
         log.info("[🚀] CulturalDatasetLoader 시작됨 (external-loader.enabled=true)")
@@ -54,18 +57,51 @@ class CulturalDatasetLoader(
         initializeOutputFiles()
         checkExistingFiles()
 
-        val csvFile = "dataset.csv"
-        log.info("[📂] 처리 중: $csvFile")
+        // 진행 상황에서 시작할 파일 인덱스 로드
+        val (startFileIndex, startChunkIndex) = loadOverallProgress()
 
         // 1단계: JSONL 생성
-        val allEnrichedRequests = processCsvFileFromProgress(csvFile)
+        val allEnrichedRequests = mutableListOf<BookCreateRequest>()
+
+        // 모든 파일이 이미 완료된 경우 체크
+        if (startFileIndex > totalFileCount) {
+            log.info("[🎉] 모든 CSV 파일이 이미 처리 완료되었습니다. DB 저장만 진행합니다.")
+            // JSONL에서 데이터 로드해서 DB 저장
+            if (Files.exists(outputPath)) {
+                val jsonlData = loadFromJsonl()
+                saveToDatabase(jsonlData)
+            } else {
+                log.warn("[⚠️] JSONL 파일을 찾을 수 없습니다.")
+            }
+            return
+        }
+
+        // dataset-1.csv부터 dataset-32.csv까지 순서대로 처리
+        for (fileIndex in startFileIndex..totalFileCount) {
+            val csvFileName = "dataset-${fileIndex}.csv"
+            log.info("[📂] 처리 중: $csvFileName (${fileIndex}/${totalFileCount})")
+
+            try {
+                // 첫 번째 재시작 파일인 경우 저장된 청크 인덱스부터 시작, 그 외에는 0부터 시작
+                val chunkStartIndex = if (fileIndex == startFileIndex) startChunkIndex else 0
+                val enrichedRequests = processCsvFileFromProgress(csvFileName, chunkStartIndex)
+                allEnrichedRequests.addAll(enrichedRequests)
+
+                log.info("[✅] $csvFileName 처리 완료 (${enrichedRequests.size}개 데이터)")
+
+                // 파일 처리 완료 시 다음 파일로 진행 상황 업데이트
+                saveOverallProgress(fileIndex + 1, 0)
+
+            } catch (e: Exception) {
+                log.error("[❌] $csvFileName 처리 실패: ${e.message}", e)
+                throw e
+            }
+        }
 
         // 2단계: DB 저장
         log.info("[💾] JSONL 생성 완료. 이제 DB 저장 시작...")
         saveToDatabase(allEnrichedRequests)
 
-        // 완료 후 진행 상황 초기화
-        clearProgress()
         log.info("[🎉] 모든 처리 완료!")
     }
 
@@ -92,16 +128,28 @@ class CulturalDatasetLoader(
         Files.createDirectories(progressPath.parent)
     }
 
-    private fun processCsvFileFromProgress(csvFileName: String): List<BookCreateRequest> {
-        val startChunkIndex = loadProgress(csvFileName)
+    private fun processCsvFileFromProgress(csvFileName: String, startChunkIndex: Int = 0): List<BookCreateRequest> {
         val totalRows = getTotalCsvRows(csvFileName)
         val totalChunks = (totalRows + csvChunkSize - 1) / csvChunkSize
         val skipRows = startChunkIndex * csvChunkSize
 
-        log.info("[📊] $csvFileName: 총 ${totalRows}행, ${totalChunks}청크 중 ${startChunkIndex}번째부터 시작")
-        log.info("[⏭️] ${skipRows}행 스킵하고 ${skipRows + 1}행부터 처리 시작")
+        // 예상 행 수와 실제 행 수 비교
+        if (totalRows != linesPerFile) {
+            log.warn("[⚠️] $csvFileName: 예상 ${linesPerFile}행과 실제 ${totalRows}행이 다릅니다!")
+        }
 
-        val csvMapper = CsvMapper()
+        log.info("[📊] $csvFileName: 총 ${totalRows}행, ${totalChunks}청크 중 ${startChunkIndex}번째부터 시작")
+        if (skipRows > 0) {
+            log.info("[⏭️] ${skipRows}행 스킵하고 ${skipRows + 1}행부터 처리 시작")
+        } else {
+            log.info("[🎯] 파일 시작부터 처리")
+        }
+
+        val csvMapper = CsvMapper().apply {
+            disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+            enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        }
         val schema = CsvSchema.emptySchema().withHeader()
         val allEnrichedRequests = mutableListOf<BookCreateRequest>()
 
@@ -110,25 +158,37 @@ class CulturalDatasetLoader(
             val iterator = reader.readValues<CulturalBookDto>(inputStream)
 
             // 이미 처리된 행들 스킵
-            log.info("[⏩] ${skipRows}행 스킵 중...")
-            var skippedCount = 0
-            repeat(skipRows) {
-                if (iterator.hasNext()) {
-                    iterator.next()
-                    skippedCount++
-                    if (skippedCount % 10000 == 0) {
-                        log.info("[⏩] ${skippedCount}/${skipRows}행 스킵 완료...")
+            if (skipRows > 0) {
+                log.info("[⏩] ${skipRows}행 스킵 중...")
+                var skippedCount = 0
+                repeat(skipRows) {
+                    if (iterator.hasNext()) {
+                        try {
+                            iterator.next()
+                            skippedCount++
+                            if (skippedCount % 10000 == 0) {
+                                log.info("[⏩] ${skippedCount}/${skipRows}행 스킵 완료...")
+                            }
+                        } catch (e: Exception) {
+                            log.warn("[⚠️] ${skippedCount + 1}행 스킵 중 오류 (무시하고 계속): ${e.message}")
+                            skippedCount++
+                        }
                     }
                 }
+                log.info("[✅] 스킵 완료. 이제 ${skipRows + 1}행부터 처리 시작")
             }
-            log.info("[✅] 스킵 완료. 이제 ${skipRows + 1}행부터 처리 시작")
 
             var currentChunkIndex = startChunkIndex
             var chunk = mutableListOf<CulturalBookDto>()
 
             while (iterator.hasNext()) {
-                val dto = iterator.next()
-                chunk.add(dto)
+                try {
+                    val dto = iterator.next()
+                    chunk.add(dto)
+                } catch (e: Exception) {
+                    log.warn("[⚠️] CSV 행 파싱 오류 (스킵): ${e.message}")
+                    continue
+                }
 
                 if (chunk.size >= csvChunkSize) {
                     val enrichedRequests = processChunk(chunk, currentChunkIndex)
@@ -136,8 +196,9 @@ class CulturalDatasetLoader(
                     chunk.clear()
                     currentChunkIndex++
 
-                    // 진행 상황 저장
-                    saveProgress(csvFileName, currentChunkIndex)
+                    // 현재 파일의 진행 상황 저장
+                    val currentFileIndex = csvFileName.removePrefix("dataset-").removeSuffix(".csv").toInt()
+                    saveOverallProgress(currentFileIndex, currentChunkIndex)
 
                     val processedRows = currentChunkIndex * csvChunkSize
                     val progress = (processedRows.toDouble() / totalRows * 100).toInt()
@@ -149,8 +210,6 @@ class CulturalDatasetLoader(
             if (chunk.isNotEmpty()) {
                 val enrichedRequests = processChunk(chunk, currentChunkIndex)
                 allEnrichedRequests.addAll(enrichedRequests)
-                currentChunkIndex++
-                saveProgress(csvFileName, currentChunkIndex)
                 log.info("[✅] $csvFileName: JSONL 생성 완료")
             }
         } ?: throw ValidationException(
@@ -162,7 +221,11 @@ class CulturalDatasetLoader(
     }
 
     private fun getTotalCsvRows(csvFileName: String): Int {
-        val csvMapper = CsvMapper()
+        val csvMapper = CsvMapper().apply {
+            disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+            enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        }
         val schema = CsvSchema.emptySchema().withHeader()
 
         javaClass.getResourceAsStream("/dataset/$csvFileName")?.use { inputStream ->
@@ -171,9 +234,15 @@ class CulturalDatasetLoader(
 
             var count = 0
             while (iterator.hasNext()) {
-                iterator.next()
-                count++
+                try {
+                    iterator.next()
+                    count++
+                } catch (e: Exception) {
+                    log.warn("[⚠️] $csvFileName 행 ${count + 1} 파싱 오류 (카운트만 증가): ${e.message}")
+                    count++
+                }
             }
+            log.info("[📊] $csvFileName 총 행 수: $count")
             return count
         } ?: throw ValidationException(
             "CSV 파일을 찾을 수 없습니다: $csvFileName",
@@ -223,32 +292,98 @@ class CulturalDatasetLoader(
         log.info("[🎉] DB 저장 완료: ${allEnrichedRequests.size}개 데이터")
     }
 
-    // 진행 상황 저장: "파일명:청크인덱스" 형태
-    private fun saveProgress(csvFileName: String, chunkIndex: Int) {
-        val progressInfo = "$csvFileName:$chunkIndex"
+    // 전체 진행 상황 저장: "파일인덱스:청크인덱스" 형태
+    private fun saveOverallProgress(fileIndex: Int, chunkIndex: Int) {
+        val progressInfo = "$fileIndex:$chunkIndex"
         Files.writeString(progressPath, progressInfo)
     }
 
-    // 진행 상황 로드
-    private fun loadProgress(csvFileName: String): Int {
+    // 전체 진행 상황 로드: (파일인덱스, 청크인덱스) 반환
+    private fun loadOverallProgress(): Pair<Int, Int> {
         return if (Files.exists(progressPath)) {
             val progressInfo = Files.readString(progressPath).trim()
+            log.info("[📋] Progress 파일 발견: '$progressInfo'")
+
             val parts = progressInfo.split(":")
-            if (parts.size == 2 && parts[0] == csvFileName) {
-                parts[1].toIntOrNull() ?: 0
+            if (parts.size == 2) {
+                val firstPart = parts[0]
+                val secondPart = parts[1].toIntOrNull() ?: 0
+
+                // 기존 format: "dataset.csv:62" -> 새로운 format으로 변환
+                if (firstPart == "dataset.csv") {
+                    val totalProcessedChunks = secondPart
+                    val totalProcessedRows = totalProcessedChunks * csvChunkSize
+
+                    log.info("[🔄] 기존 형식 감지: dataset.csv 기준 ${totalProcessedChunks}청크 (${totalProcessedRows}행) 처리됨")
+
+                    // 분할된 파일 기준으로 변환
+                    val fileIndex = (totalProcessedRows / linesPerFile) + 1
+                    val remainingRows = totalProcessedRows % linesPerFile
+                    val chunkIndex = remainingRows / csvChunkSize
+
+                    log.info("[🔀] 새로운 형식으로 변환: dataset-${fileIndex}.csv의 ${chunkIndex}번째 청크부터")
+
+                    // 새로운 형식으로 progress 파일 업데이트
+                    saveOverallProgress(fileIndex, chunkIndex)
+
+                    return fileIndex to chunkIndex
+                }
+                // 새로운 format: "파일인덱스:청크인덱스"
+                else {
+                    val fileIndex = firstPart.toIntOrNull() ?: 1
+                    val chunkIndex = secondPart
+
+                    // 각 파일당 청크 수 계산 (5000줄 ÷ 1000 = 5청크: 0,1,2,3,4)
+                    val chunksPerFile = (linesPerFile + csvChunkSize - 1) / csvChunkSize
+
+                    // 파일이 완전히 처리되었는지 확인
+                    if (chunkIndex >= chunksPerFile) {
+                        // 현재 파일 완료, 다음 파일로
+                        val nextFileIndex = fileIndex + 1
+                        log.info("[✅] dataset-${fileIndex}.csv 완료됨. 다음 파일: dataset-${nextFileIndex}.csv로 이동")
+                        return if (nextFileIndex <= totalFileCount) {
+                            nextFileIndex to 0
+                        } else {
+                            log.info("[🎉] 모든 파일 처리 완료!")
+                            totalFileCount + 1 to 0 // 모든 파일 완료 표시
+                        }
+                    }
+
+                    // 파일 인덱스가 범위를 벗어나면 1부터 시작
+                    if (fileIndex in 1..totalFileCount) {
+                        fileIndex to chunkIndex
+                    } else {
+                        log.warn("[⚠️] 파일 인덱스 범위 초과 (${fileIndex}), 처음부터 시작")
+                        1 to 0
+                    }
+                }
             } else {
-                0 // 다른 파일이거나 형식이 맞지 않으면 처음부터
+                log.warn("[⚠️] Progress 형식 오류 ('파일인덱스:청크인덱스' 형태여야 함), 처음부터 시작")
+                1 to 0
             }
         } else {
-            0
+            log.info("[📋] Progress 파일 없음, 처음부터 시작")
+            1 to 0
         }
     }
 
-    // 처리 완료 후 진행 상황 파일 삭제
-    private fun clearProgress() {
-        if (Files.exists(progressPath)) {
-            Files.delete(progressPath)
+    // JSONL 파일에서 데이터 로드
+    private fun loadFromJsonl(): List<BookCreateRequest> {
+        val requests = mutableListOf<BookCreateRequest>()
+        Files.lines(outputPath).use { lines ->
+            lines.forEach { line ->
+                if (line.isNotBlank()) {
+                    try {
+                        val request = mapper.readValue(line, BookCreateRequest::class.java)
+                        requests.add(request)
+                    } catch (e: Exception) {
+                        log.warn("[⚠️] JSONL 라인 파싱 실패: $line")
+                    }
+                }
+            }
         }
+        log.info("[📖] JSONL에서 ${requests.size}개 데이터 로드 완료")
+        return requests
     }
 
     private fun enrichBookRequest(request: BookCreateRequest): BookCreateRequest {
