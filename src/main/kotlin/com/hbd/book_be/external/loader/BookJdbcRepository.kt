@@ -108,7 +108,7 @@ open class BookJdbcRepository(
     }
 
     private fun insertBookAuthorsBatch(pairs: List<Pair<Int, Long>>, books: List<Book>) {
-        val sql = "INSERT INTO book_author (isbn, author_id) VALUES (?, ?)"
+        val sql = "INSERT IGNORE INTO book_author (isbn, author_id) VALUES (?, ?)"
 
         jdbcTemplate.batchUpdate(sql, object : BatchPreparedStatementSetter {
             override fun setValues(ps: PreparedStatement, i: Int) {

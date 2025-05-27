@@ -1,5 +1,7 @@
 package com.hbd.book_be.external.loader
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -39,7 +41,20 @@ class CulturalDatasetLoader(
     private val jdbcRepository = BookJdbcRepository(jdbcTemplate)
     private val mapper = jacksonObjectMapper().apply {
         registerModule(JavaTimeModule())
-        enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+
+        // 날짜 관련 설정
+        disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        disable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS)
+
+        // 역직렬화 설정
+        enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+        disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        enable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS)
+
+        enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+
+        // 날짜 형식 명시
+        setDateFormat(java.text.SimpleDateFormat("yyyy-MM-dd"))
     }
 
     private val outputPath = Paths.get(loaderProperties.outputPath)
@@ -146,14 +161,10 @@ class CulturalDatasetLoader(
     }
 
     private fun processCsvFile(csvFileName: String, startLineIndex: Int, fileIndex: Int) {
-        val csvMapper = CsvMapper().apply {
-            disable(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            enable(com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-        }
         val schema = CsvSchema.emptySchema().withHeader()
 
         javaClass.getResourceAsStream("/dataset/$csvFileName")?.use { inputStream ->
-            val iterator = csvMapper.readerFor(CulturalBookDto::class.java)
+            val iterator = mapper.readerFor(CulturalBookDto::class.java)
                 .with(schema)
                 .readValues<CulturalBookDto>(inputStream)
 
@@ -332,7 +343,8 @@ class CulturalDatasetLoader(
                                     batchIndex++
                                 }
                             } catch (e: Exception) {
-                                log.warn("[⚠️] JSONL 라인 파싱 실패: $line")
+                                log.warn(e.message);
+                                //log.warn("[⚠️] JSONL 라인 파싱 실패: $line")
                             }
                         }
                     }
