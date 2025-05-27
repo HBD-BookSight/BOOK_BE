@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration
 class ExternalLoaderProperties {
     var enabled: Boolean = false
     var batchSize: Int = 100
-    var outputPath: String = "src/main/resources/output/books.jsonl"
+    var outputPath: String = "src/main/resources/output"
     var progressPath: String = "src/main/resources/output/progress.txt"
 }
