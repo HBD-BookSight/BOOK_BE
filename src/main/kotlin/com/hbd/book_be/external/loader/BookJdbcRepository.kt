@@ -28,7 +28,8 @@ open class BookJdbcRepository(
                 val book = createBookStub(req, publisherId)
                 books.add(book)
 
-                req.authorNameList.forEach { name ->
+                // null 체크 추가
+                req.authorNameList?.forEach { name ->
                     val authorId = findOrInsertAuthorId(name)
                     bookAuthorPairs.add(index to authorId)
                 }
@@ -58,7 +59,7 @@ open class BookJdbcRepository(
                 description = null
             ),
             detailUrl = req.detailUrl,
-            translator = req.translator,
+            translator = req.translator ?: emptyList(),
             status = req.status
         )
     }
@@ -67,8 +68,17 @@ open class BookJdbcRepository(
         val sql = """
             INSERT INTO book (
                 isbn, title, summary, published_date, title_image, 
-                price, publisher_id, detail_url, translator, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                price, publisher_id, detail_url, translator, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                title = VALUES(title),
+                summary = VALUES(summary),
+                published_date = VALUES(published_date),
+                title_image = VALUES(title_image),
+                price = VALUES(price),
+                detail_url = VALUES(detail_url),
+                translator = VALUES(translator),
+                updated_at = NOW()
         """.trimIndent()
 
         jdbcTemplate.batchUpdate(sql, object : BatchPreparedStatementSetter {
@@ -77,13 +87,20 @@ open class BookJdbcRepository(
                 ps.setString(1, book.isbn)
                 ps.setString(2, book.title)
                 ps.setString(3, book.summary)
-                ps.setDate(4, Date.valueOf(book.publishedDate.toLocalDate()))
+                ps.setTimestamp(4, Timestamp.valueOf(book.publishedDate)) // LocalDateTime으로 저장
                 ps.setObject(5, book.titleImage, Types.VARCHAR)
                 ps.setObject(6, book.price, Types.INTEGER)
                 ps.setLong(7, book.publisher.id!!)
                 ps.setObject(8, book.detailUrl, Types.VARCHAR)
-                ps.setObject(9, book.translator, Types.VARCHAR)
-                ps.setTimestamp(10, Timestamp.valueOf(LocalDateTime.now()))
+                // translator를 문자열로 변환 (중요: ArrayList → String 변환)
+                val translatorString = convertListToString(book.translator)
+                if (translatorString != null) {
+                    ps.setString(9, translatorString)
+                } else {
+                    ps.setNull(9, Types.VARCHAR)
+                }
+                ps.setString(10, book.status) // status 필드 추가
+                ps.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now()))
             }
 
             override fun getBatchSize(): Int = books.size
@@ -102,6 +119,15 @@ open class BookJdbcRepository(
 
             override fun getBatchSize(): Int = pairs.size
         })
+    }
+
+    // List<String>을 문자열로 변환하는 메서드 추가
+    private fun convertListToString(list: List<String>?): String? {
+        return if (list.isNullOrEmpty()) {
+            null
+        } else {
+            list.joinToString(",") // StringListConverter와 동일한 방식
+        }
     }
 
     private fun findOrInsertPublisherId(name: String?): Long {
@@ -125,8 +151,8 @@ open class BookJdbcRepository(
         jdbcTemplate.update({ con ->
             con.prepareStatement(
                 """
-                    INSERT INTO publisher (name, eng_name, logo, urls, description, is_official, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO publisher (name, eng_name, logo, urls, description, is_official, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """.trimIndent(), arrayOf("id")
             ).apply {
                 setString(1, name)
@@ -136,6 +162,7 @@ open class BookJdbcRepository(
                 setNull(5, Types.VARCHAR) // description
                 setBoolean(6, false)      // is_official
                 setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()))
+                setTimestamp(8, Timestamp.valueOf(LocalDateTime.now())) // updated_at 추가
             }
         }, keyHolder)
 
@@ -154,8 +181,8 @@ open class BookJdbcRepository(
         jdbcTemplate.update({ con ->
             con.prepareStatement(
                 """
-                    INSERT INTO author (name, description, profile, is_official, created_at)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO author (name, description, profile, is_official, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 """.trimIndent(), arrayOf("id")
             ).apply {
                 setString(1, name)
@@ -163,6 +190,7 @@ open class BookJdbcRepository(
                 setNull(3, Types.VARCHAR) // profile
                 setBoolean(4, false)      // is_official
                 setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()))
+                setTimestamp(6, Timestamp.valueOf(LocalDateTime.now())) // updated_at 추가
             }
         }, keyHolder)
 
