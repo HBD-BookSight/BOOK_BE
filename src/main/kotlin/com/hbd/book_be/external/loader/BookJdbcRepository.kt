@@ -3,6 +3,7 @@ package com.hbd.book_be.external.loader
 import com.hbd.book_be.domain.Book
 import com.hbd.book_be.domain.Publisher
 import com.hbd.book_be.dto.request.BookCreateRequest
+import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.BatchPreparedStatementSetter
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
@@ -16,6 +17,7 @@ import java.time.LocalDateTime
 open class BookJdbcRepository(
     private val jdbcTemplate: JdbcTemplate
 ) {
+    private val log = LoggerFactory.getLogger(CulturalDatasetLoader::class.java)
 
     @Transactional
     open fun saveBooksWithJdbc(requests: List<BookCreateRequest>) {
@@ -34,13 +36,12 @@ open class BookJdbcRepository(
                     bookAuthorPairs.add(index to authorId)
                 }
             }.onFailure {
-                println("❌ Book 변환 실패: ${req.title} (${it.message})")
+                log.warn("❌ Book 변환 실패: ${req.title} (${it.message})")
             }
         }
 
         insertBooksBatch(books)
         insertBookAuthorsBatch(bookAuthorPairs, books)
-        println("✅ JDBC 저장 완료 (${books.size}권)")
     }
 
     private fun createBookStub(req: BookCreateRequest, publisherId: Long): Book {
