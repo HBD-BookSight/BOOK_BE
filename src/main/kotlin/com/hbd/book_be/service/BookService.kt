@@ -41,8 +41,8 @@ class BookService(
     fun getBooks(
         bookSearchRequest: BookSearchRequest
     ): Page<BookDto> {
-        val sortDirection = Sort.Direction.fromString(bookSearchRequest.direction)
-        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy)
+        val sortDirection = Sort.Direction.fromString(bookSearchRequest.direction.name)
+        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.name)
         val pageRequest = PageRequest.of(bookSearchRequest.page, bookSearchRequest.limit, sort)
 
         val bookPage = bookRepository.findAllActive(bookSearchRequest.keyword, pageRequest)
