@@ -1,4 +1,4 @@
-package com.hbd.book_be.batch.add_new_published_book
+package com.hbd.book_be.batch.reader
 
 import com.hbd.book_be.external.national_library.NationalLibraryClient
 import com.hbd.book_be.external.national_library.dto.NationalLibraryBook
@@ -13,11 +13,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
 
-open class AddNewPublishedBookReader(
+open class NationalLibraryBookReader(
     private val client: NationalLibraryClient,
     private val publishedDate: LocalDate
 ) : ItemReader<NationalLibraryBook>, StepExecutionListener {
-    private val log = LoggerFactory.getLogger(AddNewPublishedBookReader::class.java)
+    private val log = LoggerFactory.getLogger(NationalLibraryBookReader::class.java)
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     private val defaultPageSize = 100L
     private var currentPage = 1L
@@ -26,7 +26,7 @@ open class AddNewPublishedBookReader(
     private var readBookCount = 0L
 
     companion object {
-        const val READ_BOOK_COUNT_KEY = "readBookCount"
+        const val READ_BOOK_COUNT_KEY = "NationalLibraryBookReader.readBookCount"
     }
 
 
@@ -101,13 +101,13 @@ open class AddNewPublishedBookReader(
     }
 
     override fun beforeStep(stepExecution: StepExecution) {
-        log.info("Start AddNewPublishedBookReader(published_date=${publishedDate.format(dateFormatter)})")
+        log.info("Start NationalLibraryBookReader(published_date=${publishedDate.format(dateFormatter)})")
         readBookCount = 0
         super.beforeStep(stepExecution)
     }
 
     override fun afterStep(stepExecution: StepExecution): ExitStatus? {
-        log.info("Finished AddNewPublishedBookReader. $READ_BOOK_COUNT_KEY=$readBookCount")
+        log.info("Finished NationalLibraryBookReader. $READ_BOOK_COUNT_KEY=$readBookCount")
         stepExecution.executionContext.putLong(READ_BOOK_COUNT_KEY, readBookCount)
         return super.afterStep(stepExecution)
     }

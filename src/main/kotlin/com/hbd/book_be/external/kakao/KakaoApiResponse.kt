@@ -28,5 +28,9 @@ data class KakaoApiResponse(
 
         // 판매 상태 (정상, 품절, 절판 등), 상황에 따라 변동 가능성이 있으므로 문자열 처리 지양
         val status: String
-    )
+    ){
+        override fun toString(): String {
+            return "Document(isbn=$isbn, title=$title, publisher=$publisher, authors=$authors)"
+        }
+    }
 }

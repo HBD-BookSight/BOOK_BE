@@ -26,4 +26,17 @@ class RunBatchJobController(
 
         return ResponseEntity.ok(result)
     }
+
+    @PostMapping("/add-new-searched-book")
+    fun runAddNewSearchedBook(
+        targetDate: LocalDate,
+        forceExecution: Boolean
+    ): ResponseEntity<JobResult> {
+        val result = batchJobService.runDailyAddNewSearchedBookJob(
+            targetDate = targetDate,
+            forceExecution = forceExecution
+        )
+
+        return ResponseEntity.ok(result)
+    }
 }

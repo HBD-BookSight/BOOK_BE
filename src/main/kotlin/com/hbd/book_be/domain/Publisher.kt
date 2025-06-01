@@ -54,6 +54,10 @@ class Publisher(
     }
 
     fun addTag(tag: Tag) {
+        if (tagPublisherList.any { it.tag.id == tag.id }) {
+            return
+        }
+
         val addedTag = TagPublisher(tag = tag, publisher = this)
         this.tagPublisherList.add(addedTag)
         tag.tagPublisherList.add(addedTag)
