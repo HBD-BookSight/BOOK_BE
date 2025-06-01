@@ -1,26 +1,48 @@
 package com.hbd.book_be.dto.request
 
+import com.hbd.book_be.dto.request.enums.BookSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Schema
-import org.springframework.web.bind.annotation.RequestParam
 
 data class BookSearchRequest(
-    @Schema(nullable = true, required = false, defaultValue = "")
-    @RequestParam(required = false)
+    @field:Parameter(
+        description = "책 검색을 위한 키워드. 책 제목, 저자명, 출판사명 부분 일치 검색 가능. (선택 사항)",
+        schema = Schema(
+            type = "string",
+            defaultValue = "",
+            example = "이방인"
+        )
+    )
     val keyword: String? = null,
 
-    @Schema(defaultValue = "0", example = "0")
-    @RequestParam(defaultValue = "0")
+    @field:Parameter(
+        description = "페이지 번호 (0부터 시작).",
+        schema = Schema(
+            type = "integer",
+            defaultValue = "0",
+            example = "0",
+        )
+    )
     val page: Int = 0,
 
-    @Schema(defaultValue = "10", example = "10")
-    @RequestParam(defaultValue = "10")
+    @field:Parameter(
+        description = "페이지 당 항목 수.",
+        schema = Schema(
+            type = "integer",
+            defaultValue = "10",
+            example = "10",
+        )
+    )
     val limit: Int = 10,
 
-    @Schema(defaultValue = "publishedDate", example = "publishedDate")
-    @RequestParam(defaultValue = "publishedDate")
-    val orderBy: String = "publishedDate",
+    @field:Parameter(
+        description = "결과 정렬 기준 필드."
+    )
+    val orderBy: BookSortBy = BookSortBy.publishedDate,
 
-    @Schema(defaultValue = "desc", example = "desc")
-    @RequestParam(defaultValue = "desc")
-    val direction: String = "desc"
+    @field:Parameter(
+        description = "정렬 방향."
+    )
+    val direction: SortDirection = SortDirection.desc
 )
