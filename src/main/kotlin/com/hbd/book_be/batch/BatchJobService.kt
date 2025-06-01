@@ -16,9 +16,61 @@ class BatchJobService(
     private val jobLauncher: JobLauncher,
     private val jobExplorer: JobExplorer,
     private val addNewPublishedBookJob: Job,
+    private val addNewSearchedBookJob: Job,
 ) {
     private val log = LoggerFactory.getLogger(BatchJobService::class.java)
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE // yyyy-MM-dd
+
+    fun runDailyAddNewSearchedBookJob(
+        targetDate: LocalDate,
+        forceExecution: Boolean = false
+    ): JobResult {
+        log.info("Scheduled run: Checking for addNewSearchedBookJob...")
+        val jobName = addNewPublishedBookJob.name
+        if (!forceExecution && hasJobRunSuccessfullyForDate(jobName, targetDate)) {
+            return JobResult(
+                jobId = null,
+                createTime = null,
+                endTime = null,
+                batchStatus = "skipped",
+                parameters = null,
+                executionContext = null
+            )
+        }
+
+        log.info("Scheduled run: Launching $jobName for date: $targetDate")
+        try {
+            val jobParameters = JobParametersBuilder()
+                .addString("targetDate", targetDate.format(dateFormatter))
+                .addLong("scheduledRunTimestamp", System.currentTimeMillis())
+                .toJobParameters()
+            val jobExecution = jobLauncher.run(addNewSearchedBookJob, jobParameters)
+            log.info("Scheduled $jobName launched successfully for date: $targetDate")
+            val executionContext = mergeStepExecutionContext(jobExecution.stepExecutions)
+            val parameters = mapOf(
+                "targetDate" to jobExecution.jobParameters.getString("targetDate"),
+            )
+
+            return JobResult(
+                jobId = jobExecution.jobId,
+                createTime = jobExecution.createTime,
+                endTime = jobExecution.endTime,
+                batchStatus = jobExecution.status.name,
+                parameters = parameters,
+                executionContext = executionContext,
+            )
+        } catch (e: Exception) {
+            log.error("Failed to launch scheduled $jobName for date: $targetDate", e)
+            return JobResult(
+                jobId = null,
+                createTime = null,
+                endTime = null,
+                batchStatus = "failed",
+                parameters = null,
+                executionContext = null
+            )
+        }
+    }
 
     fun runDailyAddNewPublishedBookJob(
         targetDate: LocalDate,

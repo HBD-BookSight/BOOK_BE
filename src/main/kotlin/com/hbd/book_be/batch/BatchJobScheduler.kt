@@ -16,5 +16,12 @@ class BatchJobScheduler(
         )
     }
 
+    @Scheduled(cron = "0 0 0 * * ?")
+    fun batchDailyAddSearchedBookJob() {
+        batchJobService.runDailyAddNewSearchedBookJob(
+            LocalDate.now().minusDays(1), // batch 기준 하루 전날
+        )
+    }
+
 
 } 

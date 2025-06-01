@@ -66,6 +66,10 @@ class Book(
     }
 
     fun addContents(contents: Contents) {
+        if (this.bookContentsList.any { it.contents.id == contents.id }) {
+            return
+        }
+
         val addedBookContents = BookContents(book = this, contents = contents)
 
         this.bookContentsList.add(addedBookContents)
@@ -77,12 +81,20 @@ class Book(
     }
 
     fun addEvent(event: Event) {
+        if (this.bookEventList.any { it.event.id == event.id }) {
+            return
+        }
+
         val addedBookEvent = BookEvent(book = this, event = event)
         this.bookEventList.add(addedBookEvent)
         event.bookEventList.add(addedBookEvent)
     }
 
     fun addAuthor(author: Author) {
+        if (this.bookAuthorList.any { it.author.id == author.id }) {
+            return
+        }
+
         val bookAuthor = BookAuthor(book = this, author = author)
         this.bookAuthorList.add(bookAuthor)
         author.bookAuthorList.add(bookAuthor)

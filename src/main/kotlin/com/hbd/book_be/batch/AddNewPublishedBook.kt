@@ -1,5 +1,8 @@
-package com.hbd.book_be.batch.add_new_published_book
+package com.hbd.book_be.batch
 
+import com.hbd.book_be.batch.reader.NationalLibraryBookReader
+import com.hbd.book_be.batch.writter.KakaoBookWriter
+import com.hbd.book_be.batch.processer.NationalLibraryToKakaoBookProcessor
 import com.hbd.book_be.external.kakao.KakaoApiResponse
 import com.hbd.book_be.external.kakao.KakaoBookSearchClient
 import com.hbd.book_be.external.national_library.NationalLibraryClient
@@ -47,18 +50,18 @@ class AddNewPublishedBook(
     @Bean
     @JobScope
     fun addNewPublishedBookStep(
-        addNewPublishedBookProcessor: AddNewPublishedBookProcessor,
-        addNewPublishedBookReader: AddNewPublishedBookReader,
-        addNewPublishedBookWriter: AddNewPublishedBookWriter,
+        processor: NationalLibraryToKakaoBookProcessor,
+        reader: NationalLibraryBookReader,
+        writer: KakaoBookWriter,
     ): Step {
         return StepBuilder(STEP_NAME, jobRepository)
             .chunk<NationalLibraryBook, KakaoApiResponse.Document>(CHUNK_SIZE, transactionManager)
-            .reader(addNewPublishedBookReader)
-            .listener(addNewPublishedBookReader)
-            .processor(addNewPublishedBookProcessor)
-            .listener(addNewPublishedBookProcessor)
-            .writer(addNewPublishedBookWriter)
-            .listener(addNewPublishedBookWriter)
+            .reader(reader)
+            .listener(reader)
+            .processor(processor)
+            .listener(processor)
+            .writer(writer)
+            .listener(writer)
             .build()
     }
 
@@ -68,14 +71,14 @@ class AddNewPublishedBook(
     fun addNewPublishedBookReader(
         nationalLibraryClient: NationalLibraryClient,
         @Value("#{jobParameters['targetDate']}") targetDate: String?
-    ): AddNewPublishedBookReader {
+    ): NationalLibraryBookReader {
         val publishedDate = if (targetDate != null) {
             LocalDate.parse(targetDate)
         } else {
             LocalDate.now().minusDays(1) // default TargetDate
         }
 
-        return AddNewPublishedBookReader(
+        return NationalLibraryBookReader(
             client = nationalLibraryClient,
             publishedDate = publishedDate
         )
@@ -86,8 +89,8 @@ class AddNewPublishedBook(
     @JobScope
     fun addNewPublishedBookProcessor(
         kakaoClient: KakaoBookSearchClient
-    ): AddNewPublishedBookProcessor {
-        return AddNewPublishedBookProcessor(
+    ): NationalLibraryToKakaoBookProcessor {
+        return NationalLibraryToKakaoBookProcessor(
             kakaoClient = kakaoClient
         )
     }
@@ -98,8 +101,8 @@ class AddNewPublishedBook(
     fun addNewPublishedBookWriter(
         bookRepository: BookRepository,
         bookService: BookService
-    ): AddNewPublishedBookWriter {
-        return AddNewPublishedBookWriter(
+    ): KakaoBookWriter {
+        return KakaoBookWriter(
             bookRepository = bookRepository,
             bookService = bookService
         )

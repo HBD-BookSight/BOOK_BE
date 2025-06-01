@@ -1,4 +1,4 @@
-package com.hbd.book_be.batch.add_new_published_book
+package com.hbd.book_be.batch.processer
 
 import com.hbd.book_be.external.kakao.KakaoApiRequest
 import com.hbd.book_be.external.kakao.KakaoApiResponse
@@ -11,14 +11,14 @@ import org.springframework.batch.core.StepExecution
 import org.springframework.batch.core.StepExecutionListener
 import org.springframework.batch.item.ItemProcessor
 
-open class AddNewPublishedBookProcessor(
+open class NationalLibraryToKakaoBookProcessor(
     private val kakaoClient: KakaoBookSearchClient
 ) : ItemProcessor<NationalLibraryBook, KakaoApiResponse.Document>, StepExecutionListener {
-    private val log: Logger = LoggerFactory.getLogger(AddNewPublishedBookProcessor::class.java)
+    private val log: Logger = LoggerFactory.getLogger(NationalLibraryToKakaoBookProcessor::class.java)
     private var processedBookCount: Long = 0L
 
     companion object {
-        const val PROCESSED_BOOK_COUNT_KEY = "processedBookCount"
+        const val PROCESSED_BOOK_COUNT_KEY = "NationalLibraryToKakaoBookProcessor.processedBookCount"
     }
 
     override fun process(item: NationalLibraryBook): KakaoApiResponse.Document? {
@@ -50,13 +50,13 @@ open class AddNewPublishedBookProcessor(
     }
 
     override fun beforeStep(stepExecution: StepExecution) {
-        log.info("Start AddNewPublishedBookProcessor")
+        log.info("Start NationalLibraryToKakaoBookProcessor")
         processedBookCount = 0
         super.beforeStep(stepExecution)
     }
 
     override fun afterStep(stepExecution: StepExecution): ExitStatus? {
-        log.info("Finished AddNewPublishedBookProcessor. $PROCESSED_BOOK_COUNT_KEY=$processedBookCount")
+        log.info("Finished NationalLibraryToKakaoBookProcessor. $PROCESSED_BOOK_COUNT_KEY=$processedBookCount")
         stepExecution.executionContext.putLong(PROCESSED_BOOK_COUNT_KEY, processedBookCount)
         return super.afterStep(stepExecution)
     }
