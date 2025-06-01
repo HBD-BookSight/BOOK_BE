@@ -25,25 +25,25 @@ class Book(
     @Column(name = "title", nullable = false, length = 700)
     var title: String,
 
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Column(name = "summary", nullable = false) // OCI DB doesn't support 'TEXT'
     var summary: String,
 
     @Column(name = "published_date", nullable = false)
     var publishedDate: LocalDateTime,
 
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Column(name = "detail_url") // OCI DB doesn't support 'TEXT'
     var detailUrl: String?,
 
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Convert(converter = StringListConverter::class)
     var translator: List<String>?,
 
     @Column(name = "price")
     var price: Int?,
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Column(name = "title_image")
     var titleImage: String?,
 
