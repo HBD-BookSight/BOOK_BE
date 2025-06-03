@@ -10,7 +10,10 @@ import com.hbd.book_be.dto.RecommendedBookDto
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.dto.request.BookSearchRequest
+import com.hbd.book_be.dto.request.enums.SearchCategory
+import com.hbd.book_be.exception.ErrorCodes
 import com.hbd.book_be.exception.NotFoundException
+import com.hbd.book_be.exception.ValidationException
 import com.hbd.book_be.repository.AuthorRepository
 import com.hbd.book_be.repository.BookRepository
 import com.hbd.book_be.repository.PublisherRepository
@@ -42,10 +45,36 @@ class BookService(
         bookSearchRequest: BookSearchRequest
     ): Page<BookDto> {
         val sortDirection = Sort.Direction.fromString(bookSearchRequest.direction.name)
-        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.name)
+        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.value)
         val pageRequest = PageRequest.of(bookSearchRequest.page, bookSearchRequest.limit, sort)
 
-        val bookPage = bookRepository.findAllActive(bookSearchRequest.keyword, pageRequest)
+        val bookPage: Page<Book> = if (bookSearchRequest.keyword == null) {
+            bookRepository.findAllActive(publishedDate = bookSearchRequest.publishedDate, pageable = pageRequest)
+        } else if (bookSearchRequest.category == SearchCategory.Title) {
+            bookRepository.findActiveByTitle(
+                title = bookSearchRequest.keyword,
+                publishedDate = bookSearchRequest.publishedDate,
+                pageable = pageRequest
+            )
+        } else if (bookSearchRequest.category == SearchCategory.Author) {
+            bookRepository.findActiveByAuthorName(
+                authorName = bookSearchRequest.keyword,
+                publishedDate = bookSearchRequest.publishedDate,
+                pageable = pageRequest
+            )
+        } else if (bookSearchRequest.category == SearchCategory.Publisher) {
+            bookRepository.findActiveByPublisherName(
+                publisherName = bookSearchRequest.keyword,
+                publishedDate = bookSearchRequest.publishedDate,
+                pageable = pageRequest
+            )
+        } else {
+            throw ValidationException(
+                message = "Invalid book search category '$bookSearchRequest.category'",
+                errorCode = ErrorCodes.INVALID_BOOK_SEARCH_CATEGORY,
+            )
+        }
+
         return bookPage.map { BookDto.fromEntity(it) }
     }
 
