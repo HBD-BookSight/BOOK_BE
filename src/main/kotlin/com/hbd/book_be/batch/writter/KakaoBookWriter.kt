@@ -1,4 +1,4 @@
-package com.hbd.book_be.batch.add_new_published_book
+package com.hbd.book_be.batch.writter
 
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.external.kakao.KakaoApiResponse
@@ -15,37 +15,39 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
-open class AddNewPublishedBookWriter(
+open class KakaoBookWriter(
     private val bookRepository: BookRepository,
     private val bookService: BookService
 ) : ItemWriter<KakaoApiResponse.Document>, StepExecutionListener {
-    private val log: Logger = LoggerFactory.getLogger(AddNewPublishedBookWriter::class.java)
+    private val log: Logger = LoggerFactory.getLogger(KakaoBookWriter::class.java)
     private var writtenBookCount = 0L
 
     companion object {
-        const val WRITTEN_BOOK_COUNT_KEY = "writtenBookCount"
+        const val WRITTEN_BOOK_COUNT_KEY = "KakaoBookWriter.writtenBookCount"
     }
 
     @Transactional
     override fun write(chunk: Chunk<out KakaoApiResponse.Document>) {
         val existingIsbnList = bookRepository.findByIsbnIn(chunk.items.mapNotNull { it.isbn }).map { it.isbn }
+        val processedIsbnList = mutableSetOf<String>()
 
         for (document in chunk.items) {
-            if (document.isbn.isBlank()) {
-                log.warn("Skipping book with blank ISBN: ${document.title}")
-                continue
-            }
-            if (existingIsbnList.contains(document.isbn)) {
-                log.info("Book with ISBN ${document.isbn} already exists. Skipping.")
+            val primaryIsbn = document.isbn.split(" ").first()
+
+            if (primaryIsbn.isBlank()) {
+                log.warn("Skipping book with blank ISBN $document")
                 continue
             }
 
-            val primaryIsbn = document.isbn.split(" ").first()
+            if (existingIsbnList.contains(document.isbn) || processedIsbnList.contains(document.isbn)) {
+                log.info("Book with $document already exists. Skipping.")
+                continue
+            }
 
             val offsetDateTime = OffsetDateTime.parse(document.datetime)
             val localDateTime: LocalDateTime = offsetDateTime.toLocalDateTime()
 
-            bookService.createBook(
+            val createdBook = bookService.createBook(
                 BookCreateRequest(
                     isbn = primaryIsbn,
                     title = document.title,
@@ -60,6 +62,7 @@ open class AddNewPublishedBookWriter(
                     publisherName = document.publisher,
                 )
             )
+            processedIsbnList.add(createdBook.isbn)
             writtenBookCount++
         }
     }

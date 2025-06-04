@@ -66,11 +66,15 @@ spring:
         show_sql: false
         format_sql: false
         default_batch_fetch_size: 100
+  batch:
+    jdbc:
+      initialize-schema: embedded
 
 external:
   cultural-data-loader:
     enabled: true
     batchSize: 100
+
 
 ---
 spring:
