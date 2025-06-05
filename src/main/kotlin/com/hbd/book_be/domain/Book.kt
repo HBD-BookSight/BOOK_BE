@@ -3,6 +3,8 @@ package com.hbd.book_be.domain
 import com.hbd.book_be.domain.converter.StringListConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 
 @Entity
@@ -23,23 +25,25 @@ class Book(
     @Column(name = "title", nullable = false, length = 700)
     var title: String,
 
-    @Column(name = "summary", nullable = false, columnDefinition = "CLOB") // OCI DB doesn't support 'TEXT'
+    @JdbcTypeCode(SqlTypes.NCLOB)
+    @Column(name = "summary", nullable = false) // OCI DB doesn't support 'TEXT'
     var summary: String,
 
     @Column(name = "published_date", nullable = false)
     var publishedDate: LocalDateTime,
 
-    @Column(name = "detail_url", columnDefinition = "CLOB") // OCI DB doesn't support 'TEXT'
+    @JdbcTypeCode(SqlTypes.NCLOB)
+    @Column(name = "detail_url") // OCI DB doesn't support 'TEXT'
     var detailUrl: String?,
 
-    @Column(name = "translator")
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Convert(converter = StringListConverter::class)
     var translator: List<String>?,
 
     @Column(name = "price")
     var price: Int?,
 
-    @Lob
+    @JdbcTypeCode(SqlTypes.NCLOB)
     @Column(name = "title_image")
     var titleImage: String?,
 
