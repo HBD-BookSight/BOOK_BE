@@ -1,6 +1,7 @@
 package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.domain.converter.UrlInfoConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
@@ -20,7 +21,7 @@ class Contents(
     @Column(name = "title")
     var title: String?,
 
-    @Convert(converter = UrlInfo.Converter::class)
+    @Convert(converter = UrlInfoConverter::class)
     @Column(name = "urls", columnDefinition = "json")
     var urls: MutableList<UrlInfo> = mutableListOf(),
 
@@ -43,6 +44,7 @@ class Contents(
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "contents", cascade = [CascadeType.ALL], orphanRemoval = true)
     val tagContentsList: MutableList<TagContents> = mutableListOf()
 ) : BaseTimeEntity() {
+
 
     fun getTagList(): List<Tag> {
         return tagContentsList.map { it.tag }

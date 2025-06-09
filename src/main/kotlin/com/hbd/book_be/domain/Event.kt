@@ -1,6 +1,7 @@
 package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.domain.converter.UrlInfoConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import com.hbd.book_be.enums.EventFlag
 import com.hbd.book_be.enums.EventLocation
@@ -32,7 +33,7 @@ class Event(
     @JoinColumn(name = "creator_id", nullable = false)
     var creator: User,
 
-    @Convert(converter = UrlInfo.Converter::class)
+    @Convert(converter = UrlInfoConverter::class)
     @Column(name = "urls", columnDefinition = "json")
     var urls: MutableList<UrlInfo> = mutableListOf(),
 
@@ -78,6 +79,7 @@ class Event(
     val bookEventList: MutableList<BookEvent> = mutableListOf()
 
 ) : BaseTimeEntity() {
+
 
     fun getBookList(): List<Book> {
         return bookEventList.map { it.book }

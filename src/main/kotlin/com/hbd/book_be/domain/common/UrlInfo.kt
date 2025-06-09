@@ -1,14 +1,12 @@
 package com.hbd.book_be.domain.common
 
-import com.hbd.book_be.domain.converter.base.ListConverter
-import jakarta.persistence.Converter as _Converter
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UrlInfo(
+    @JsonProperty("url")
     val url: String,
+    @JsonProperty("type")
     val type: String
-) {
-
-    @_Converter
-    class Converter : ListConverter<UrlInfo>()
-}
-
+)

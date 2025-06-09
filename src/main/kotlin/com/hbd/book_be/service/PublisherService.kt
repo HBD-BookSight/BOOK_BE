@@ -40,12 +40,12 @@ class PublisherService(
 
     @Transactional(readOnly = true)
     fun getPublisherDetail(id: Long): PublisherDto.Detail {
-        val book = publisherRepository.findById(id).getOrNull()
-        if (book == null || book.deletedAt != null) {
-            throw NotFoundException("Not found Book(isbn: $id)")
+        val publisher = publisherRepository.findById(id).getOrNull()
+        if (publisher == null || publisher.deletedAt != null) {
+            throw NotFoundException("Not found publisher(isbn: $id)")
         }
 
-        return PublisherDto.Detail.fromEntity(book)
+        return PublisherDto.Detail.fromEntity(publisher)
     }
 
     @Transactional

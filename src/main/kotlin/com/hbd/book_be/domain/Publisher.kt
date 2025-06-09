@@ -1,6 +1,7 @@
 package com.hbd.book_be.domain
 
 import com.hbd.book_be.domain.common.UrlInfo
+import com.hbd.book_be.domain.converter.UrlInfoConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 
@@ -25,7 +26,7 @@ class Publisher(
     @Column(name = "logo")
     var logo: String?,
 
-    @Convert(converter = UrlInfo.Converter::class)
+    @Convert(converter = UrlInfoConverter::class)
     @Column(name = "urls", columnDefinition = "json")
     var urls: MutableList<UrlInfo> = mutableListOf(),
 
@@ -45,6 +46,7 @@ class Publisher(
     var tagPublisherList: MutableList<TagPublisher> = mutableListOf(),
 
     ) : BaseTimeEntity() {
+
 
     fun clearTags() {
         tagPublisherList.forEach { tagPublisher ->
