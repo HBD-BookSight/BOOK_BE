@@ -21,11 +21,12 @@ class BookRepositoryCustomImpl(
         val whereClause = BooleanBuilder()
         whereClause.and(book.deletedAt.isNull)
 
-        if (!keyword.isNullOrBlank()) {
+        val trimmedKeyword = keyword?.trim()
+        if (!trimmedKeyword.isNullOrEmpty()) {
             whereClause.and(
-                book.title.containsIgnoreCase(keyword)
-                    .or(book.bookAuthorList.any().author().name.containsIgnoreCase(keyword))
-                    .or(book.publisher().name.containsIgnoreCase(keyword))
+                book.title.containsIgnoreCase(trimmedKeyword)
+                    .or(book.bookAuthorList.any().author().name.containsIgnoreCase(trimmedKeyword))
+                    .or(book.publisher().name.containsIgnoreCase(trimmedKeyword))
             )
         }
 
