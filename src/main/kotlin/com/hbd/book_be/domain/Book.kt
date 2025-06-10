@@ -1,6 +1,6 @@
 package com.hbd.book_be.domain
 
-import com.hbd.book_be.domain.converter.StringListConverter
+import com.hbd.book_be.domain.converter.CommaListConverter
 import com.hbd.book_be.domain.core.BaseTimeEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
@@ -37,7 +37,7 @@ class Book(
     var detailUrl: String?,
 
     @JdbcTypeCode(SqlTypes.NCLOB)
-    @Convert(converter = StringListConverter::class)
+    @Convert(converter = CommaListConverter::class)
     var translator: List<String>?,
 
     @Column(name = "price")
