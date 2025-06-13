@@ -67,19 +67,23 @@ open class BookJdbcRepository(
 
     private fun insertBooksBatch(books: List<Book>) {
         val sql = """
-            INSERT INTO book (
-                isbn, title, summary, published_date, title_image, 
-                price, publisher_id, detail_url, translator, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                title = VALUES(title),
-                summary = VALUES(summary),
-                published_date = VALUES(published_date),
-                title_image = VALUES(title_image),
-                price = VALUES(price),
-                detail_url = VALUES(detail_url),
-                translator = VALUES(translator),
-                updated_at = NOW()
+            MERGE INTO book b
+            USING (SELECT ? as isbn, ? as title, ? as summary, ? as published_date, 
+                          ? as title_image, ? as price, ? as publisher_id, 
+                          ? as detail_url, ? as translator, ? as status, 
+                          ? as created_at FROM dual) src
+            ON (b.isbn = src.isbn)
+            WHEN MATCHED THEN
+                UPDATE SET title = src.title, summary = src.summary,
+                          published_date = src.published_date, title_image = src.title_image,
+                          price = src.price, detail_url = src.detail_url,
+                          translator = src.translator, updated_at = CURRENT_TIMESTAMP
+            WHEN NOT MATCHED THEN
+                INSERT (isbn, title, summary, published_date, title_image, 
+                       price, publisher_id, detail_url, translator, status, created_at)
+                VALUES (src.isbn, src.title, src.summary, src.published_date, 
+                       src.title_image, src.price, src.publisher_id, 
+                       src.detail_url, src.translator, src.status, src.created_at)
         """.trimIndent()
 
         jdbcTemplate.batchUpdate(sql, object : BatchPreparedStatementSetter {
@@ -109,7 +113,13 @@ open class BookJdbcRepository(
     }
 
     private fun insertBookAuthorsBatch(pairs: List<Pair<Int, Long>>, books: List<Book>) {
-        val sql = "INSERT IGNORE INTO book_author (isbn, author_id) VALUES (?, ?)"
+        val sql = """
+            MERGE INTO book_author ba
+            USING (SELECT ? as isbn, ? as author_id FROM dual) src
+            ON (ba.isbn = src.isbn AND ba.author_id = src.author_id)
+            WHEN NOT MATCHED THEN
+                INSERT (isbn, author_id) VALUES (src.isbn, src.author_id)
+        """.trimIndent()
 
         jdbcTemplate.batchUpdate(sql, object : BatchPreparedStatementSetter {
             override fun setValues(ps: PreparedStatement, i: Int) {
@@ -142,7 +152,7 @@ open class BookJdbcRepository(
 
     private fun findOrInsertPublisher(name: String): Long {
         val existing = jdbcTemplate.queryForList(
-            "SELECT id FROM publisher WHERE name = ? LIMIT 1",
+            "SELECT id FROM publisher WHERE name = ? AND ROWNUM = 1",
             Long::class.java,
             name
         )
@@ -152,9 +162,9 @@ open class BookJdbcRepository(
         jdbcTemplate.update({ con ->
             con.prepareStatement(
                 """
-                    INSERT INTO publisher (name, eng_name, logo, urls, description, is_official, created_at, updated_at)
+                    INSERT INTO PUBLISHER (NAME, ENG_NAME, LOGO, URLS, DESCRIPTION, IS_OFFICIAL, CREATED_AT, UPDATED_AT)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """.trimIndent(), arrayOf("id")
+                """.trimIndent(), arrayOf("ID")
             ).apply {
                 setString(1, name)
                 setNull(2, Types.VARCHAR) // eng_name
@@ -172,7 +182,7 @@ open class BookJdbcRepository(
 
     private fun findOrInsertAuthor(name: String): Long {
         val existing = jdbcTemplate.queryForList(
-            "SELECT id FROM author WHERE name = ? AND deleted_at IS NULL LIMIT 1",
+            "SELECT id FROM author WHERE name = ? AND deleted_at IS NULL AND ROWNUM = 1",
             Long::class.java,
             name
         )
@@ -182,9 +192,9 @@ open class BookJdbcRepository(
         jdbcTemplate.update({ con ->
             con.prepareStatement(
                 """
-                    INSERT INTO author (name, description, profile, is_official, created_at, updated_at)
+                    INSERT INTO AUTHOR (NAME, DESCRIPTION, PROFILE, IS_OFFICIAL, CREATED_AT, UPDATED_AT)
                     VALUES (?, ?, ?, ?, ?, ?)
-                """.trimIndent(), arrayOf("id")
+                """.trimIndent(), arrayOf("ID")
             ).apply {
                 setString(1, name)
                 setNull(2, Types.VARCHAR) // description
