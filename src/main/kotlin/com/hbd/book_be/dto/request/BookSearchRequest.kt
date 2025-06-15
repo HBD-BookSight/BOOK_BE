@@ -9,6 +9,7 @@ import java.time.LocalDate
 data class BookSearchRequest(
     @field:Parameter(
         description = "책 검색을 위한 키워드. 책 제목, 저자명, 출판사명 부분 일치 검색 가능. (선택 사항)",
+        required = false,
         schema = Schema(
             type = "string",
             defaultValue = "",
@@ -19,6 +20,7 @@ data class BookSearchRequest(
 
     @field:Parameter(
         description = "페이지 번호 (0부터 시작).",
+        required = false,
         schema = Schema(
             type = "integer",
             defaultValue = "0",
@@ -29,6 +31,7 @@ data class BookSearchRequest(
 
     @field:Parameter(
         description = "페이지 당 항목 수.",
+        required = false,
         schema = Schema(
             type = "integer",
             defaultValue = "10",
@@ -49,11 +52,13 @@ data class BookSearchRequest(
 
     @field:Parameter(
         description = "결과 정렬 기준 필드.",
+        required = false
     )
     val orderBy: BookSortBy = BookSortBy.PublishedDate,
 
     @field:Parameter(
-        description = "정렬 방향."
+        description = "정렬 방향.",
+        required = false
     )
     val direction: SortDirection = SortDirection.desc
 )

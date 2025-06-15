@@ -5,6 +5,8 @@ import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
+import com.hbd.book_be.dto.request.enums.ContentsSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.*
 import org.springframework.data.domain.Page
@@ -37,11 +39,11 @@ class ContentsService(
     fun getContents(
         page: Int,
         limit: Int,
-        orderBy: String,
-        direction: String,
+        orderBy: ContentsSortBy,
+        direction: SortDirection,
     ): Page<ContentsDto> {
-        val sortDirection = Sort.Direction.fromString(direction)
-        val sort = Sort.by(sortDirection, orderBy)
+        val sortDirection = Sort.Direction.fromString(direction.name)
+        val sort = Sort.by(sortDirection, orderBy.value)
         val pageRequest = PageRequest.of(page, limit, sort)
 
         val contentsPage = contentsRepository.findAllActive(pageRequest)
@@ -54,7 +56,7 @@ class ContentsService(
     ): List<DiscoveryContentsDto> {
         val pageRequest = PageRequest.of(0, limit)
         val discoveryContentsPage = discoveryContentsRepository.findRecentDiscoveryContents(pageRequest)
-        
+
         return discoveryContentsPage.map { DiscoveryContentsDto.fromEntity(it) }
     }
 

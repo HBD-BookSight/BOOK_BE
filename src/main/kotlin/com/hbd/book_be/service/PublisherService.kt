@@ -5,6 +5,8 @@ import com.hbd.book_be.domain.Publisher
 import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.enums.PublisherSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.BookRepository
 import com.hbd.book_be.repository.PublisherRepository
@@ -29,10 +31,10 @@ class PublisherService(
     fun getPublishers(
         page: Int = 0,
         limit: Int = 10,
-        orderBy: String = "name",
-        direction: String = "asc"
+        orderBy: PublisherSortBy,
+        direction: SortDirection
     ): Page<PublisherDto> {
-        val sort = Sort.by(Sort.Direction.fromString(direction), orderBy)
+        val sort = Sort.by(Sort.Direction.fromString(direction.name), orderBy.value)
         val pageable = PageRequest.of(page, limit, sort)
 
         return publisherRepository.findAllActive(pageable).map { PublisherDto.fromEntity(it) }
