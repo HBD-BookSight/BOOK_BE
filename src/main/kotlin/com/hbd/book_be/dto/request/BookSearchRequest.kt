@@ -4,6 +4,7 @@ import com.hbd.book_be.dto.request.enums.BookSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDate
 
 data class BookSearchRequest(
     @field:Parameter(
@@ -40,10 +41,20 @@ data class BookSearchRequest(
     val limit: Int = 10,
 
     @field:Parameter(
+        description = "검색할 도서의 출판일.(yyyy-mm-dd)",
+        schema = Schema(
+            type = "string",
+            format = "date",
+            required = false,
+        )
+    )
+    val publishedDate: LocalDate? = null,
+
+    @field:Parameter(
         description = "결과 정렬 기준 필드.",
         required = false
     )
-    val orderBy: BookSortBy = BookSortBy.publishedDate,
+    val orderBy: BookSortBy = BookSortBy.PublishedDate,
 
     @field:Parameter(
         description = "정렬 방향.",

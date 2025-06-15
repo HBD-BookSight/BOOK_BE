@@ -45,7 +45,8 @@ class BookService(
         val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.name)
         val pageRequest = PageRequest.of(bookSearchRequest.page, bookSearchRequest.limit, sort)
 
-        val bookPage = bookRepository.findAllActive(bookSearchRequest.keyword, pageRequest)
+        val bookPage =
+            bookRepository.findAllActive(bookSearchRequest.keyword, pageRequest, bookSearchRequest.publishedDate)
         return bookPage.map { BookDto.fromEntity(it) }
     }
 

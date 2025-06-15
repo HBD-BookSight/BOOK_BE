@@ -80,7 +80,7 @@ data class BookCreateRequest(
         schema = Schema(
             description = "저자 ID 목록 (ID를 알고 있는 경우 사용)",
             required = false,
-            type = "integer", 
+            type = "integer",
             format = "int64"
         ),
         arraySchema = Schema(
