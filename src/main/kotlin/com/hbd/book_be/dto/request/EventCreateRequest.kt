@@ -3,28 +3,24 @@ package com.hbd.book_be.dto.request
 import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.enums.EventFlag
 import com.hbd.book_be.enums.EventLocation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 data class EventCreateRequest(
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 제목",
         required = true,
-        schema = Schema(
-            type = "string",
-            example = "2024 북 페어"
-        )
+        example = "2024 북 페어"
     )
     val title: String,
     
-    @field:Parameter(
-        description = "이벤트 관련 URL 목록",
-        required = true
-    )
     @field:ArraySchema(
-        schema = Schema(implementation = UrlInfo::class),
+        schema = Schema(
+            description = "이벤트 관련 URL 목록",
+            required = true,
+            implementation = UrlInfo::class
+        ),
         arraySchema = Schema(
             type = "array",
             defaultValue = "[]"
@@ -32,137 +28,104 @@ data class EventCreateRequest(
     )
     val urls: List<UrlInfo>,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 주최자",
         required = true,
-        schema = Schema(
-            type = "string",
-            example = "서울시립도서관"
-        )
+        example = "서울시립도서관"
     )
     val host: String,
     
-    @field:Parameter(
+    @field:Schema(
         description = "사용자 ID",
         required = true,
-        schema = Schema(
-            type = "integer",
-            format = "int64",
-            example = "1"
-        )
+        format = "int64",
+        example = "1"
     )
     val userId: Long,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 위치",
         required = true
     )
     val location: EventLocation,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 시작 날짜",
         required = true,
-        schema = Schema(
-            type = "string",
-            format = "date",
-            example = "2024-01-01"
-        )
+        format = "date",
+        example = "2024-01-01"
     )
     val startDate: LocalDate,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 종료 날짜",
         required = true,
-        schema = Schema(
-            type = "string",
-            format = "date",
-            example = "2024-01-07"
-        )
+        format = "date",
+        example = "2024-01-07"
     )
     val endDate: LocalDate,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 타입",
         required = true,
-        schema = Schema(
-            type = "string",
-            example = "북 페어"
-        )
+        example = "북 페어"
     )
     val eventType: String,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 플래그",
         required = true
     )
     val eventFlag: EventFlag,
     
-    @field:Parameter(
+    @field:Schema(
         description = "게시 여부",
         required = true,
-        schema = Schema(
-            type = "boolean",
-            example = "true"
-        )
+        example = "true"
     )
     val isPosting: Boolean,
     
-    @field:Parameter(
+    @field:Schema(
         description = "관련 책 제목 (선택 사항)",
         required = false,
-        schema = Schema(
-            type = "string",
-            example = "이방인"
-        )
+        example = "이방인"
     )
     val bookTitle: String?,
     
-    @field:Parameter(
+    @field:Schema(
         description = "발신자 이름 (선택 사항)",
         required = false,
-        schema = Schema(
-            type = "string",
-            example = "홍길동"
-        )
+        example = "홍길동"
     )
     val senderName: String?,
     
-    @field:Parameter(
+    @field:Schema(
         description = "발신자 이메일 (선택 사항)",
         required = false,
-        schema = Schema(
-            type = "string",
-            example = "hong@example.com"
-        )
+        example = "hong@example.com"
     )
     val senderEmail: String?,
     
-    @field:Parameter(
+    @field:Schema(
         description = "발신자 메시지 (선택 사항)",
         required = false,
-        schema = Schema(
-            type = "string",
-            example = "이벤트에 대한 문의사항입니다."
-        )
+        example = "이벤트에 대한 문의사항입니다."
     )
     val senderMessage: String?,
     
-    @field:Parameter(
+    @field:Schema(
         description = "이벤트 메모 (선택 사항)",
         required = false,
-        schema = Schema(
-            type = "string",
-            example = "추가 정보나 메모"
-        )
+        example = "추가 정보나 메모"
     )
     val memo: String?,
 
-    @field:Parameter(
-        description = "이벤트 태그 목록",
-        required = false
-    )
     @field:ArraySchema(
-        schema = Schema(type = "string"),
+        schema = Schema(
+            description = "이벤트 태그 목록",
+            required = false,
+            type = "string"
+        ),
         arraySchema = Schema(
             type = "array",
             defaultValue = "[]",
@@ -171,12 +134,12 @@ data class EventCreateRequest(
     )
     val tagList: List<String> = emptyList(),
     
-    @field:Parameter(
-        description = "관련 책 ISBN 목록",
-        required = false
-    )
     @field:ArraySchema(
-        schema = Schema(type = "string"),
+        schema = Schema(
+            description = "관련 책 ISBN 목록",
+            required = false,
+            type = "string"
+        ),
         arraySchema = Schema(
             type = "array",
             defaultValue = "[]",
