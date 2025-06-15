@@ -7,6 +7,7 @@ import java.time.LocalDateTime
 
 data class DiscoveryContentsDto(
     val id: Long,
+    val title: String?,
     val urls: List<UrlInfo>,
     val image: String?,
 
@@ -20,6 +21,7 @@ data class DiscoveryContentsDto(
 
             return DiscoveryContentsDto(
                 id = contents.id!!,
+                title = contents.title,
                 urls = contents.urls,
                 image = contents.image,
                 creatorDto = UserDto.fromEntity(contents.creator),

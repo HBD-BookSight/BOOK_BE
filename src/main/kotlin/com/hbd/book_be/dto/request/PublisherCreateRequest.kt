@@ -21,10 +21,10 @@ data class PublisherCreateRequest(
 
     @field:Schema(
         description = "출판사 로고 이미지 URL",
-        required = false,
+        required = true,
         example = "https://image.aladin.co.kr/publisher/minumsa.jpg"
     )
-    val logo: String?,
+    val logo: String,
 
     @field:Schema(
         description = "출판사 소개 및 설명",
@@ -43,7 +43,7 @@ data class PublisherCreateRequest(
     @field:ArraySchema(
         schema = Schema(
             description = "출판사 관련 URL 목록 (홈페이지, 소셜미디어 등)",
-            required = false,
+            required = true,
             implementation = UrlInfo::class
         ),
         arraySchema = Schema(
@@ -57,7 +57,7 @@ data class PublisherCreateRequest(
     @field:ArraySchema(
         schema = Schema(
             description = "출판사와 관련된 도서의 ISBN 목록",
-            required = false,
+            required = true,
             type = "string"
         ),
         arraySchema = Schema(
