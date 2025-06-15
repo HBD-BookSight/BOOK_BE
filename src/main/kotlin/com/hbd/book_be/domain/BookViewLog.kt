@@ -1,6 +1,8 @@
 package com.hbd.book_be.domain
 
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 
 @Entity
@@ -26,7 +28,8 @@ class BookViewLog(
     @Column(name = "status")
     val status: String,
 
-    @Column(name = "error_message")
+    @JdbcTypeCode(SqlTypes.NCLOB)
+    @Column(name = "error_message", nullable = true) // OCI DB doesn't support 'TEXT'
     val errorMessage: String?,
 
     @Column(name = "duration_ms")

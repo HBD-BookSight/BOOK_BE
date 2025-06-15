@@ -36,8 +36,8 @@ class Book(
     @Column(name = "detail_url") // OCI DB doesn't support 'TEXT'
     var detailUrl: String?,
 
-    @JdbcTypeCode(SqlTypes.NCLOB)
     @Convert(converter = CommaListConverter::class)
+    @Column(name = "translator", length = 1000)
     var translator: List<String>?,
 
     @Column(name = "price")
