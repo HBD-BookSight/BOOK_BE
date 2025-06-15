@@ -42,7 +42,7 @@ class BookService(
         bookSearchRequest: BookSearchRequest
     ): Page<BookDto> {
         val sortDirection = Sort.Direction.fromString(bookSearchRequest.direction.name)
-        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.name)
+        val sort = Sort.by(sortDirection, bookSearchRequest.orderBy.value)
         val pageRequest = PageRequest.of(bookSearchRequest.page, bookSearchRequest.limit, sort)
 
         val bookPage =

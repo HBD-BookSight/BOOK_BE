@@ -52,12 +52,14 @@ data class BookSearchRequest(
 
     @field:Parameter(
         description = "결과 정렬 기준 필드.",
+        example = "PublishedDate",
         required = false
     )
     val orderBy: BookSortBy = BookSortBy.PublishedDate,
 
     @field:Parameter(
         description = "정렬 방향.",
+        example = "desc",
         required = false
     )
     val direction: SortDirection = SortDirection.desc
