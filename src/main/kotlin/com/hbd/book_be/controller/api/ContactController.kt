@@ -33,7 +33,6 @@ class ContactController(
     )
     @PostMapping
     fun createContact(
-        @ParameterObject
         @RequestBody
         contactCreateRequest: ContactCreateRequest
     ): ResponseEntity<ContactDto> {

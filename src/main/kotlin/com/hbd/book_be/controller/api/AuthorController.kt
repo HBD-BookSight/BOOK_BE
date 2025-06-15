@@ -60,7 +60,6 @@ class AuthorController(
     )
     @PostMapping
     fun createAuthor(
-        @ParameterObject
         @RequestBody
         authorCreateRequest: AuthorCreateRequest
     ): ResponseEntity<AuthorDto> {

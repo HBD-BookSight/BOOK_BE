@@ -85,7 +85,6 @@ class EventController(
     )
     @PostMapping
     fun createEvent(
-        @ParameterObject
         @RequestBody
         eventCreateRequest: EventCreateRequest
     ): ResponseEntity<EventDto> {

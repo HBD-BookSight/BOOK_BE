@@ -2,6 +2,8 @@ package com.hbd.book_be.controller.api
 
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.enums.PublisherSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.service.PublisherService
 import io.swagger.v3.oas.annotations.Operation
@@ -26,10 +28,21 @@ class PublisherController(
     )
     @GetMapping
     fun getPublishers(
-        @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam("page", defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam("limit", defaultValue = "10") limit: Int,
-        @Parameter(description = "정렬 기준 (name: 이름순, createdAt: 생성일순)") @RequestParam("orderBy", defaultValue = "name") orderBy: String,
-        @Parameter(description = "정렬 방향 (asc: 오름차순, desc: 내림차순)") @RequestParam("direction", defaultValue = "asc") direction: String
+        @Parameter(description = "페이지 번호 (0부터 시작)")
+        @RequestParam("page", defaultValue = "0")
+        page: Int,
+
+        @Parameter(description = "페이지 크기")
+        @RequestParam("limit", defaultValue = "10")
+        limit: Int,
+
+        @Parameter(description = "정렬 기준 (Name: 이름순, CreatedAt: 생성일순)")
+        @RequestParam("orderBy", defaultValue = "Name")
+        orderBy: PublisherSortBy = PublisherSortBy.Name,
+
+        @Parameter(description = "정렬 방향 (asc: 오름차순, desc: 내림차순)")
+        @RequestParam("direction", defaultValue = "desc")
+        direction: SortDirection = SortDirection.desc
     ): ResponseEntity<PageResponse<PublisherDto>> {
         val pagePublisherDto = publisherService.getPublishers(page, limit, orderBy, direction)
         val pageResponse = PageResponse(
@@ -48,7 +61,6 @@ class PublisherController(
     )
     @PostMapping
     fun createPublisher(
-        @ParameterObject
         @RequestBody
         publisherCreateRequest: PublisherCreateRequest
     ): ResponseEntity<PublisherDto.Detail> {

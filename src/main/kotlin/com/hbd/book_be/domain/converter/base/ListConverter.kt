@@ -6,8 +6,10 @@ import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
 
 @Converter
-open class ListConverter<T> : AttributeConverter<List<T>, String> {
+abstract class ListConverter<T> : AttributeConverter<List<T>, String> {
     private val objectMapper = jacksonObjectMapper()
+
+    protected abstract fun getTypeReference(): TypeReference<List<T>>
 
     override fun convertToDatabaseColumn(attribute: List<T>?): String? {
         return if (attribute.isNullOrEmpty()) {
@@ -21,7 +23,7 @@ open class ListConverter<T> : AttributeConverter<List<T>, String> {
         return if (dbData.isNullOrBlank() || dbData == "[]") {
             emptyList()
         } else {
-            objectMapper.readValue(dbData, object : TypeReference<List<T>>() {})
+            objectMapper.readValue(dbData, getTypeReference())
         }
     }
 }

@@ -74,7 +74,6 @@ class BookController(
     )
     @PostMapping
     fun createBook(
-        @ParameterObject
         @RequestBody bookCreateRequest: BookCreateRequest,
     ): ResponseEntity<BookDto.Detail> {
         if (bookCreateRequest.publisherId == null && bookCreateRequest.publisherName == null) {
