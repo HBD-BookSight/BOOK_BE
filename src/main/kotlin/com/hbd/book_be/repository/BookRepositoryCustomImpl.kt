@@ -12,14 +12,25 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 @Repository
 class BookRepositoryCustomImpl(
     private val queryFactory: JPAQueryFactory
 ) : BookRepositoryCustom {
-    override fun findAllActive(keyword: String?, pageable: Pageable): Page<Book> {
+    override fun findAllActive(keyword: String?, pageable: Pageable, publishedDate: LocalDate?): Page<Book> {
         val whereClause = BooleanBuilder()
         whereClause.and(book.deletedAt.isNull)
+
+        if (publishedDate != null) {
+            val publishedStartDate = publishedDate.atStartOfDay()
+            val publishedEndDate = publishedDate.atTime(LocalTime.MAX).truncatedTo(ChronoUnit.MILLIS)
+            whereClause.and(
+                book.publishedDate.between(publishedStartDate, publishedEndDate)
+            )
+        }
 
         val trimmedKeyword = keyword?.trim()
         if (!trimmedKeyword.isNullOrEmpty()) {
