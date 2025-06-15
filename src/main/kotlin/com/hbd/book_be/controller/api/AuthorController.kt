@@ -7,6 +7,7 @@ import com.hbd.book_be.service.AuthorService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -59,7 +60,9 @@ class AuthorController(
     )
     @PostMapping
     fun createAuthor(
-        @RequestBody authorCreateRequest: AuthorCreateRequest
+        @ParameterObject
+        @RequestBody
+        authorCreateRequest: AuthorCreateRequest
     ): ResponseEntity<AuthorDto> {
         val author = authorService.createAuthor(authorCreateRequest)
         return ResponseEntity.ok(author)
