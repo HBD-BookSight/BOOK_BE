@@ -32,6 +32,18 @@ national-library:
   url: ${NATIONAL_LIBRARY_API_URL:https://www.nl.go.kr/seoji/SearchApi.do}
   key: ${NATIONAL_LIBRARY_API_KEY}
 
+# Sentry Configuration
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SPRING_PROFILES_ACTIVE:local}
+  server-name: book-be
+  traces-sample-rate: 1.0
+  debug: false
+  enable-request-interceptor: true
+  tags:
+    service: book-be
+    version: 1.0.0
+
 # Springdoc OpenAPI Configuration
 springdoc:
   swagger-ui:
@@ -75,6 +87,14 @@ external:
     enabled: true
     batchSize: 100
 
+sentry:
+  debug: true
+  traces-sample-rate: 0.1
+  tags:
+    service: book-be
+    version: 1.0.0
+    env: local
+
 
 ---
 spring:
@@ -105,3 +125,13 @@ external:
   cultural-data-loader:
     enabled: false
     batchSize: 100
+
+# Dev 환경 Sentry 설정
+sentry:
+  debug: false
+  traces-sample-rate: 0.5  # 개발 환경에서는 50% 샘플링
+  tags:
+    service: book-be
+    version: 1.0.0
+    env: dev
+    database: oracle
