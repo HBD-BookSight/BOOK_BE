@@ -39,7 +39,6 @@ sentry:
   server-name: book-be
   traces-sample-rate: 1.0
   debug: false
-  enable-request-interceptor: true
   tags:
     service: book-be
     version: 1.0.0
@@ -91,8 +90,6 @@ sentry:
   debug: true
   traces-sample-rate: 0.1
   tags:
-    service: book-be
-    version: 1.0.0
     env: local
 
 
@@ -126,12 +123,8 @@ external:
     enabled: false
     batchSize: 100
 
-# Dev 환경 Sentry 설정
 sentry:
   debug: false
-  traces-sample-rate: 0.5  # 개발 환경에서는 50% 샘플링
+  traces-sample-rate: 0.5
   tags:
-    service: book-be
-    version: 1.0.0
     env: dev
-    database: oracle
