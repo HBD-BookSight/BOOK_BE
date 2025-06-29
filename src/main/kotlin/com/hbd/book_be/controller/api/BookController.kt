@@ -6,6 +6,7 @@ import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.EventDto
 import com.hbd.book_be.dto.RecommendedBookDto
+import com.hbd.book_be.dto.request.BookBirthdayRequest
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.dto.request.BookSearchRequest
@@ -146,5 +147,27 @@ class BookController(
         )
 
         return ResponseEntity.ok(listResponse)
+    }
+
+    @Operation(
+        summary = "생일인 책 조회",
+        description = "mm-dd 기준 출간 월/일이 같은 책 정보를 조회합니다."
+    )
+    @GetMapping("/birthday")
+    fun getBookBirthday(
+        @ParameterObject
+        bookBirthdayRequest: BookBirthdayRequest
+    ): ResponseEntity<PageResponse<BookDto>> {
+        val pageBirthdayBookDto = bookService.getBirthdayBook(bookBirthdayRequest)
+
+        val pageBookResponse = PageResponse(
+            items = pageBirthdayBookDto.content,
+            totalCount = pageBirthdayBookDto.totalElements,
+            totalPages = pageBirthdayBookDto.totalPages,
+            hasNext = pageBirthdayBookDto.hasNext(),
+            hasPrevious = pageBirthdayBookDto.hasPrevious(),
+        )
+
+        return ResponseEntity.ok(pageBookResponse)
     }
 }
