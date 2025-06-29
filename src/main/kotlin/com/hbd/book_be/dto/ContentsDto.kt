@@ -34,7 +34,10 @@ data class ContentsDto(
         val title: String?,
         val urls: List<UrlInfo>,
         val image: String?,
+
+        @JsonProperty(value = "books")
         val booksDtoList: List<BookDto>,
+        @JsonProperty(value = "tags")
         val tagDtoList: List<TagDto>,
 
         @JsonProperty("creator")

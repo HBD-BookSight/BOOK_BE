@@ -93,7 +93,7 @@ class ContentsController(
     @PostMapping
     fun createContents(
         @RequestBody
-        request: ContentsCreateRequest): ResponseEntity<ContentsDto> {
+        request: ContentsCreateRequest): ResponseEntity<ContentsDto.Detail> {
         val contentsDto = contentsService.createContents(request)
         return ResponseEntity.ok(contentsDto)
     }

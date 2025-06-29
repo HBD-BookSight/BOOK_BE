@@ -66,4 +66,36 @@ class BookRepositoryCustomImpl(
 
         return PageImpl(result, pageable, totalCount)
     }
+
+    override fun findByPublishedMonthAndDay(publishedMonth: Int, publishedDay: Int, pageable: Pageable): Page<Book> {
+        val whereClause = BooleanBuilder()
+        whereClause.and(book.deletedAt.isNull)
+        whereClause.and(book.publishedDate.month().eq(publishedMonth))
+        whereClause.and(book.publishedDate.dayOfMonth().eq(publishedDay))
+
+        val totalCount = queryFactory
+            .select(book.count())
+            .from(book)
+            .where(whereClause)
+            .fetchOne() ?: 0L
+
+        var query = queryFactory
+            .selectFrom(book)
+            .where(whereClause)
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+
+        for (order in pageable.sort) {
+            val entityPath: PathBuilder<*> = PathBuilder(Book::class.java, "book")
+            val orderSpecifier = OrderSpecifier(
+                if (order.isAscending) Order.ASC else Order.DESC,
+                entityPath[order.property] as Expression<Comparable<*>>
+            )
+            query = query.orderBy(orderSpecifier)
+        }
+
+        val result = query.fetch()
+
+        return PageImpl(result, pageable, totalCount)
+    }
 }

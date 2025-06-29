@@ -61,7 +61,7 @@ class ContentsService(
     }
 
     @Transactional
-    fun createContents(contentsCreateRequest: ContentsCreateRequest): ContentsDto {
+    fun createContents(contentsCreateRequest: ContentsCreateRequest): ContentsDto.Detail {
         val creator = userRepository.findById(contentsCreateRequest.creatorId)
             .orElseThrow { NotFoundException("Not found: User(${contentsCreateRequest.creatorId}") }
 
@@ -86,7 +86,7 @@ class ContentsService(
         }
 
         val saved = contentsRepository.save(contents)
-        return ContentsDto.fromEntity(saved)
+        return ContentsDto.Detail.fromEntity(saved)
     }
 
     private fun getOrCreateTagList(tagList: List<String>): List<Tag> {

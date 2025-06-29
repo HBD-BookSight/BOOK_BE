@@ -7,6 +7,7 @@ import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.EventDto
 import com.hbd.book_be.dto.RecommendedBookDto
+import com.hbd.book_be.dto.request.BookBirthdayRequest
 import com.hbd.book_be.dto.request.BookCreateRequest
 import com.hbd.book_be.dto.request.BookDetailRequest
 import com.hbd.book_be.dto.request.BookSearchRequest
@@ -58,6 +59,19 @@ class BookService(
         }
 
         return BookDto.Detail.fromEntity(book)
+    }
+
+    @Transactional(readOnly = true)
+    fun getBirthdayBook(bookBirthdayRequest: BookBirthdayRequest): Page<BookDto> {
+        val sortDirection = Sort.Direction.fromString(bookBirthdayRequest.direction.name)
+        val sort = Sort.by(sortDirection, bookBirthdayRequest.orderBy.value)
+        val pageRequest = PageRequest.of(bookBirthdayRequest.page, bookBirthdayRequest.limit, sort)
+
+        val bookBirthdayPage = bookRepository.findByPublishedMonthAndDay(
+            bookBirthdayRequest.month, bookBirthdayRequest.day, pageRequest
+        )
+
+        return bookBirthdayPage.map { BookDto.fromEntity(it) }
     }
 
     @Transactional
