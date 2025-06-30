@@ -99,33 +99,8 @@ class GlobalExceptionHandler {
             sentryTags
         )
 
-        // 더 구체적인 에러 정보
-        val detailedMessage = StringBuilder()
-        detailedMessage.append("Error: ${ex.message ?: "Unknown error"}")
-
-        // 원인 예외 정보
-        var cause = ex.cause
-        var level = 1
-        while (cause != null && level <= 3) {
-            detailedMessage.append("\n  Cause $level: ${cause.javaClass.simpleName} - ${cause.message}")
-            cause = cause.cause
-            level++
-        }
-
-        // 스택 트레이스 정보
-        val projectStackTrace = ex.stackTrace
-            .filter { it.className.contains("com.hbd.book_be") }
-            .take(3)
-
-        if (projectStackTrace.isNotEmpty()) {
-            detailedMessage.append("\n  Stack trace:")
-            projectStackTrace.forEach {
-                detailedMessage.append("\n    at ${it.className}.${it.methodName}(${it.fileName}:${it.lineNumber})")
-            }
-        }
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-            ErrorResponse(ErrorCodes.INTERNAL_SERVER_ERROR, detailedMessage.toString())
+            ErrorResponse(ErrorCodes.INTERNAL_SERVER_ERROR, ex.message ?: "")
         )
     }
 }
