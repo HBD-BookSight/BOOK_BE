@@ -13,6 +13,10 @@ spring:
     init:
       mode: always
 
+# 커스텀 데이터베이스 플랫폼 설정
+database:
+  platform: h2  # 기본값
+
 external:
   cultural-data-loader:
     enabled: false
@@ -57,6 +61,9 @@ spring:
       maximum-pool-size: 100
       minimum-idle: 5
       connection-timeout: 5000
+
+database:
+  platform: mysql
   jpa:
     hibernate:
       ddl-auto: create
@@ -90,6 +97,9 @@ spring:
       maximum-pool-size: 100
       minimum-idle: 5
       connection-timeout: 5000
+
+database:
+  platform: oracle
 
   jpa:
     hibernate:

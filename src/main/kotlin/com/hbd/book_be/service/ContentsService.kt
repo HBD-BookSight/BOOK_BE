@@ -52,12 +52,9 @@ class ContentsService(
 
     @Transactional(readOnly = true)
     fun getDiscoveryContents(
-        limit: Int,
-    ): List<DiscoveryContentsDto> {
-        val pageRequest = PageRequest.of(0, limit)
-        val discoveryContentsPage = discoveryContentsRepository.findRecentDiscoveryContents(pageRequest)
-
-        return discoveryContentsPage.map { DiscoveryContentsDto.fromEntity(it) }
+    ): List<ContentsDto> {
+        val discoveryContents = contentsRepository.findOnePerUrlType()
+        return discoveryContents.map { ContentsDto.fromEntity(it) }
     }
 
     @Transactional
