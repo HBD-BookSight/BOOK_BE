@@ -13,6 +13,9 @@ spring:
     init:
       mode: always
 
+database:
+  platform: h2
+
 # JWT 설정
 jwt:
   secret: ${JWT_SECRET:mySecretKey12345678901234567890123456789012345678901234567890}
@@ -90,6 +93,9 @@ external:
     enabled: false
     batchSize: 100
 
+database:
+  platform: oracle
+
 ---
 # Dev 환경 (운영 Oracle)
 spring:
@@ -121,3 +127,6 @@ external:
   cultural-data-loader:
     enabled: false
     batchSize: 100
+
+database:
+  platform: oracle
