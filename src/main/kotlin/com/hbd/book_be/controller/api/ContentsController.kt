@@ -76,8 +76,11 @@ class ContentsController(
         description = "발견 페이지에 표시할 콘텐츠 목록을 조회합니다."
     )
     @GetMapping("/discovery")
-    fun getDiscoveryContents(): ResponseEntity<ListResponse<ContentsDto>> {
-        val discoveryContentsList = contentsService.getDiscoveryContents()
+    fun getDiscoveryContents(
+        @Parameter(description = "조회할 콘텐츠 수", example = "10")
+        @RequestParam("limit", defaultValue = "10") limit: Int,
+    ): ResponseEntity<ListResponse<DiscoveryContentsDto>> {
+        val discoveryContentsList = contentsService.getDiscoveryContents(limit)
 
         val listResponse = ListResponse(items = discoveryContentsList, length = discoveryContentsList.size)
         return ResponseEntity.ok(listResponse)
@@ -90,8 +93,7 @@ class ContentsController(
     @PostMapping
     fun createContents(
         @RequestBody
-        request: ContentsCreateRequest
-    ): ResponseEntity<ContentsDto.Detail> {
+        request: ContentsCreateRequest): ResponseEntity<ContentsDto.Detail> {
         val contentsDto = contentsService.createContents(request)
         return ResponseEntity.ok(contentsDto)
     }

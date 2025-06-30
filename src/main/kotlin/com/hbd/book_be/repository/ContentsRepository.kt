@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
-interface ContentsRepository : JpaRepository<Contents, Long>, ContentsRepositoryJsonQuery {
+interface ContentsRepository : JpaRepository<Contents, Long> {
     @Query("select contents from Contents contents where contents.deletedAt IS NULL")
     fun findAllActive(pageable: Pageable): Page<Contents>
 }
