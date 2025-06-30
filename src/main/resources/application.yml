@@ -13,6 +13,12 @@ spring:
     init:
       mode: always
 
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:mySecretKey12345678901234567890123456789012345678901234567890}
+  access-token-expire-time: ${JWT_ACCESS_TOKEN_EXPIRE_TIME:3600000}  # 1시간 (1000 * 60 * 60)
+  refresh-token-expire-time: ${JWT_REFRESH_TOKEN_EXPIRE_TIME:604800000}  # 7일 (1000 * 60 * 60 * 24 * 7)
+
 # 커스텀 데이터베이스 플랫폼 설정
 database:
   platform: h2  # 기본값

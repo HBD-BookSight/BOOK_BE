@@ -38,6 +38,30 @@ class GlobalExceptionHandler {
         )
     }
 
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(ex: NotFoundException): ResponseEntity<ErrorResponse> {
+        log.error("Resource not found. message=${ex.message}", ex)
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse("NOT_FOUND", ex.message ?: "Resource not found")
+        )
+    }
+
+    @ExceptionHandler(IllegalAccessException::class)
+    fun handleIllegalAccessException(ex: IllegalAccessException): ResponseEntity<ErrorResponse> {
+        log.error("Access denied. message=${ex.message}", ex)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+            ErrorResponse("ACCESS_DENIED", ex.message ?: "Access denied")
+        )
+    }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        log.error("Invalid argument. message=${ex.message}", ex)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse("INVALID_ARGUMENT", ex.message ?: "Invalid argument")
+        )
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): ResponseEntity<ErrorResponse> {
         log.error("Unhandled exception occurred. Code=${ErrorCodes.INTERNAL_SERVER_ERROR}, message=${ex.message}", ex)

@@ -50,7 +50,7 @@ class ContentsRepositoryJsonQueryImpl(
         WITH ranked_contents AS (
             SELECT DISTINCT c.*, 
                    ROW_NUMBER() OVER (
-                       PARTITION BY jt.url_type
+                       PARTITION BY NVL(jt.url_type, 'UNKNOWN')
                        ORDER BY c.id ASC
                    ) as rn
             FROM contents c,
@@ -61,6 +61,7 @@ class ContentsRepositoryJsonQueryImpl(
                      )
                  ) jt
             WHERE c.deleted_at IS NULL
+              AND jt.url_type IS NOT NULL
         )
         SELECT * FROM ranked_contents WHERE rn = 1
         ORDER BY id
