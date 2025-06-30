@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Repository
 
 @Repository
-class ContentsRepositoryJsonQueryImplementation(
+class ContentsRepositoryJsonQueryImpl(
     @PersistenceContext private val entityManager: EntityManager
 ) : ContentsRepositoryJsonQuery {
 
