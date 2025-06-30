@@ -3,6 +3,7 @@ package com.hbd.book_be.controller.api
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
+import com.hbd.book_be.dto.request.ContentsUpdateRequest
 import com.hbd.book_be.dto.request.enums.ContentsSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.dto.response.ListResponse
@@ -94,5 +95,30 @@ class ContentsController(
     ): ResponseEntity<ContentsDto.Detail> {
         val contentsDto = contentsService.createContents(request)
         return ResponseEntity.ok(contentsDto)
+    }
+
+    @Operation(
+        summary = "콘텐츠 정보 수정",
+        description = "기존 콘텐츠 정보를 수정합니다. 관리자만 수정할 수 있습니다."
+    )
+    @PutMapping("/{id}")
+    fun updateContents(
+        @Parameter(description = "수정할 콘텐츠의 ID", required = true) @PathVariable id: Long,
+        @RequestBody contentsUpdateRequest: ContentsUpdateRequest
+    ): ResponseEntity<ContentsDto.Detail> {
+        val updatedContents = contentsService.updateContents(id, contentsUpdateRequest)
+        return ResponseEntity.ok(updatedContents)
+    }
+
+    @Operation(
+        summary = "콘텐츠 정보 삭제",
+        description = "콘텐츠 정보를 삭제합니다. 관리자만 삭제할 수 있습니다."
+    )
+    @DeleteMapping("/{id}")
+    fun deleteContents(
+        @Parameter(description = "삭제할 콘텐츠의 ID", required = true) @PathVariable id: Long
+    ): ResponseEntity<Void> {
+        contentsService.deleteContents(id)
+        return ResponseEntity.noContent().build()
     }
 }

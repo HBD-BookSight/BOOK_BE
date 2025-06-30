@@ -2,6 +2,7 @@ package com.hbd.book_be.controller.api
 
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.PublisherUpdateRequest
 import com.hbd.book_be.dto.request.enums.PublisherSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.dto.response.PageResponse
@@ -78,6 +79,31 @@ class PublisherController(
     ): ResponseEntity<PublisherDto.Detail> {
         val publisherDto = publisherService.getPublisherDetail(id)
         return ResponseEntity.ok(publisherDto)
+    }
+
+    @Operation(
+        summary = "출판사 정보 수정",
+        description = "기존 출판사 정보를 수정합니다. 관리자만 수정할 수 있습니다."
+    )
+    @PutMapping("/{id}")
+    fun updatePublisher(
+        @Parameter(description = "수정할 출판사의 ID", required = true) @PathVariable id: Long,
+        @RequestBody publisherUpdateRequest: PublisherUpdateRequest
+    ): ResponseEntity<PublisherDto.Detail> {
+        val updatedPublisher = publisherService.updatePublisher(id, publisherUpdateRequest)
+        return ResponseEntity.ok(updatedPublisher)
+    }
+
+    @Operation(
+        summary = "출판사 정보 삭제",
+        description = "출판사 정보를 삭제합니다. 관리자만 삭제할 수 있습니다."
+    )
+    @DeleteMapping("/{id}")
+    fun deletePublisher(
+        @Parameter(description = "삭제할 출판사의 ID", required = true) @PathVariable id: Long
+    ): ResponseEntity<Void> {
+        publisherService.deletePublisher(id)
+        return ResponseEntity.noContent().build()
     }
 
 }

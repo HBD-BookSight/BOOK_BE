@@ -5,12 +5,15 @@ import com.hbd.book_be.domain.Publisher
 import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.PublisherUpdateRequest
 import com.hbd.book_be.dto.request.enums.PublisherSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
+import com.hbd.book_be.enums.UserRole
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.BookRepository
 import com.hbd.book_be.repository.PublisherRepository
 import com.hbd.book_be.repository.TagRepository
+import com.hbd.book_be.util.AuthUtils
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -23,7 +26,8 @@ import kotlin.jvm.optionals.getOrNull
 class PublisherService(
     private val publisherRepository: PublisherRepository,
     private val bookRepository: BookRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val authUtils: AuthUtils
 ) {
     private val log = LoggerFactory.getLogger(PublisherService::class.java)
 
@@ -82,7 +86,7 @@ class PublisherService(
                 description = publisherCreateRequest.description,
                 logo = publisherCreateRequest.logo,
                 urls = publisherCreateRequest.urls.toMutableList(),
-                isOfficial = true,
+                isOfficial = true
             )
         }
 
@@ -100,6 +104,59 @@ class PublisherService(
         return PublisherDto.Detail.fromEntity(savedPublisher)
     }
 
+    @Transactional
+    fun updatePublisher(id: Long, publisherUpdateRequest: PublisherUpdateRequest): PublisherDto.Detail {
+        val publisher = publisherRepository.findById(id).getOrNull()
+            ?: throw NotFoundException("Not found publisher(id: $id)")
+
+        // ADMIN 권한 확인
+        if (!authUtils.isCurrentUserAdmin()) {
+            throw IllegalAccessException("수정 권한이 없습니다. 관리자만 수정할 수 있습니다.")
+        }
+
+        // 필드 업데이트 (null이 아닌 값만)
+        publisherUpdateRequest.name?.let { publisher.name = it }
+        publisherUpdateRequest.engName?.let { publisher.engName = it }
+        publisherUpdateRequest.logo?.let { publisher.logo = it }
+        publisherUpdateRequest.description?.let { publisher.description = it }
+        publisherUpdateRequest.urls?.let { publisher.urls = it.toMutableList() }
+
+        // 태그 업데이트
+        publisherUpdateRequest.tagList?.let { tagNames ->
+            publisher.clearTags()
+            val tagList = getOrCreateTagList(tagNames)
+            tagList.forEach { tag -> publisher.addTag(tag) }
+        }
+
+        // 책 목록 업데이트
+        publisherUpdateRequest.bookIsbnList?.let { bookIsbnList ->
+            val bookList = bookRepository.findAllById(bookIsbnList)
+            publisher.bookList.clear()
+            bookList.forEach { book ->
+                book.publisher = publisher
+                publisher.bookList.add(book)
+            }
+        }
+
+        val savedPublisher = publisherRepository.save(publisher)
+        return PublisherDto.Detail.fromEntity(savedPublisher)
+    }
+
+    @Transactional
+    fun deletePublisher(id: Long) {
+        val publisher = publisherRepository.findById(id).getOrNull()
+            ?: throw NotFoundException("Not found publisher(id: $id)")
+
+        // ADMIN 권한 확인
+        if (!authUtils.isCurrentUserAdmin()) {
+            throw IllegalAccessException("삭제 권한이 없습니다. 관리자만 삭제할 수 있습니다.")
+        }
+
+        // Soft delete
+        publisher.deletedAt = java.time.LocalDateTime.now()
+        publisherRepository.save(publisher)
+    }
+
     private fun getOrCreateTagList(tagList: List<String>): List<Tag> {
         val newTagList = mutableListOf<Tag>()
         for (tagName in tagList) {
@@ -112,5 +169,4 @@ class PublisherService(
 
         return newTagList
     }
-
 }
