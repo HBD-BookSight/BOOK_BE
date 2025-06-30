@@ -12,28 +12,28 @@ data class ContentsCreateRequest(
         example = "1"
     )
     val creatorId: Long,
-    
+
     @field:Schema(
         description = "콘텐츠 제목 (선택 사항)",
         required = false,
         example = "좋은 책 추천"
     )
     val title: String?,
-    
+
     @field:Schema(
         description = "콘텐츠 이미지 URL (선택 사항)",
         required = false,
         example = "https://example.com/image.jpg"
     )
     val image: String?,
-    
+
     @field:Schema(
         description = "콘텐츠 설명 (선택 사항)",
         required = false,
         example = "이 책은 정말 좋은 책입니다."
     )
     val description: String?,
-    
+
     @field:Schema(
         description = "콘텐츠 메모 (선택 사항)",
         required = false,
@@ -49,7 +49,7 @@ data class ContentsCreateRequest(
         ),
         arraySchema = Schema(
             type = "array",
-            defaultValue = "[]"
+            defaultValue = "[{\"url\": \"https://www.youtube.com/watch?v=movie123\",\n \"type\": \"youtube\"}]"
         )
     )
     val urls: List<UrlInfo>,
