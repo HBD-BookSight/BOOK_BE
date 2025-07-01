@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Admin Recommended Book API", description = "관리자용 추천 도서 관리 API")
+@Tag(name = "Admin - Recommended Book API", description = "관리자 - 추천 도서 관리 API")
 @RestController
 @RequestMapping("/admin/v1/recommended-books")
 class RecommendedBookController(
@@ -23,7 +23,6 @@ class RecommendedBookController(
         description = "특정 ISBN의 도서를 추천 도서로 추가합니다."
     )
     @PostMapping
-    @RequireAdminRole
     fun createRecommendedBook(
         @RequestBody request: RecommendedBookCreateRequest
     ): ResponseEntity<RecommendedBookDto> {
@@ -36,7 +35,6 @@ class RecommendedBookController(
         description = "특정 ISBN의 추천 도서를 삭제합니다."
     )
     @DeleteMapping("/{isbn}")
-    @RequireAdminRole
     fun deleteRecommendedBook(
         @Parameter(description = "삭제할 추천 도서의 ISBN", required = true) @PathVariable isbn: String
     ): ResponseEntity<Void> {

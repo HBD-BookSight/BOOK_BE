@@ -31,7 +31,6 @@ class KakaoBookController(
         description = "카카오 책 검색 API를 사용하여 책 목록을 조회합니다."
     )
     @GetMapping
-    @RequireAdminRole
     fun getBooks(
         @ParameterObject
         @ModelAttribute request: KakaoApiRequest
@@ -50,7 +49,6 @@ class KakaoBookController(
         description = "카카오 API에서 ISBN으로 책 정보를 조회하여 새로운 책을 생성합니다."
     )
     @PostMapping
-    @RequireAdminRole
     fun createBook(
         @Parameter(description = "생성할 책의 ISBN 번호", required = true, example = "9791168473690")
         @RequestParam("isbn") isbn: String

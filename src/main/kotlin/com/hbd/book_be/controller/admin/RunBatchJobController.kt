@@ -24,7 +24,6 @@ class RunBatchJobController(
         description = "지정된 날짜의 새로 출간된 책을 추가하는 배치 작업을 실행합니다."
     )
     @PostMapping("/add-new-published-book")
-    @RequireAdminRole
     fun runAddNewPublishedBook(
         @Parameter(description = "배치 작업 대상 날짜", required = true, example = "2024-01-01")
         @RequestParam targetDate: LocalDate,
@@ -44,7 +43,6 @@ class RunBatchJobController(
         description = "지정된 날짜의 새로 검색된 책을 추가하는 배치 작업을 실행합니다."
     )
     @PostMapping("/add-new-searched-book")
-    @RequireAdminRole
     fun runAddNewSearchedBook(
         @Parameter(description = "배치 작업 대상 날짜", required = true, example = "2024-01-01")
         @RequestParam targetDate: LocalDate,
