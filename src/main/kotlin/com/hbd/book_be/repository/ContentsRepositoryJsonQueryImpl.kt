@@ -11,7 +11,7 @@ class ContentsRepositoryJsonQueryImpl(
     @PersistenceContext private val entityManager: EntityManager
 ) : ContentsRepositoryJsonQuery {
 
-    @Value("\${database.platform:h2}")
+    @Value("\${database.platform:oracle}")
     private lateinit var databasePlatform: String
 
     override fun findOnePerUrlType(): List<Contents> {
@@ -48,19 +48,15 @@ class ContentsRepositoryJsonQueryImpl(
 
     private fun getOracleQuery() = """
         WITH ranked_contents AS (
-            SELECT DISTINCT c.*, 
+            SELECT c.*, 
                    ROW_NUMBER() OVER (
-                       PARTITION BY jt.url_type
+                       PARTITION BY json_value(url_item.COLUMN_VALUE, '$.type')
                        ORDER BY c.id ASC
                    ) as rn
             FROM contents c,
-                 JSON_TABLE(
-                     c.urls FORMAT JSON, 
-                     '$[*]' COLUMNS (
-                         url_type VARCHAR2(255) PATH '$.type'
-                     )
-                 ) jt
+                 JSON_TABLE(c.urls, '$[*]' COLUMNS (COLUMN_VALUE CLOB FORMAT JSON PATH '$')) url_item
             WHERE c.deleted_at IS NULL
+              AND json_value(url_item.COLUMN_VALUE, '$.type') IS NOT NULL
         )
         SELECT * FROM ranked_contents WHERE rn = 1
         ORDER BY id

@@ -1,8 +1,6 @@
 package com.hbd.book_be.controller.api
 
 import com.hbd.book_be.dto.ContentsDto
-import com.hbd.book_be.dto.DiscoveryContentsDto
-import com.hbd.book_be.dto.request.ContentsCreateRequest
 import com.hbd.book_be.dto.request.enums.ContentsSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.dto.response.ListResponse
@@ -81,18 +79,5 @@ class ContentsController(
 
         val listResponse = ListResponse(items = discoveryContentsList, length = discoveryContentsList.size)
         return ResponseEntity.ok(listResponse)
-    }
-
-    @Operation(
-        summary = "새 콘텐츠 생성",
-        description = "새로운 콘텐츠를 생성합니다."
-    )
-    @PostMapping
-    fun createContents(
-        @RequestBody
-        request: ContentsCreateRequest
-    ): ResponseEntity<ContentsDto.Detail> {
-        val contentsDto = contentsService.createContents(request)
-        return ResponseEntity.ok(contentsDto)
     }
 }

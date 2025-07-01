@@ -1,7 +1,6 @@
 package com.hbd.book_be.controller.api
 
 import com.hbd.book_be.dto.PublisherDto
-import com.hbd.book_be.dto.request.PublisherCreateRequest
 import com.hbd.book_be.dto.request.enums.PublisherSortBy
 import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.dto.response.PageResponse
@@ -9,7 +8,6 @@ import com.hbd.book_be.service.PublisherService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springdoc.core.annotations.ParameterObject
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -56,19 +54,6 @@ class PublisherController(
     }
 
     @Operation(
-        summary = "새 출판사 정보 생성",
-        description = "새로운 출판사 정보를 추가합니다. 출판사의 기본 정보와 관련 도서, 태그를 포함할 수 있습니다."
-    )
-    @PostMapping
-    fun createPublisher(
-        @RequestBody
-        publisherCreateRequest: PublisherCreateRequest
-    ): ResponseEntity<PublisherDto.Detail> {
-        val publisherDto = publisherService.createPublisher(publisherCreateRequest)
-        return ResponseEntity.ok(publisherDto)
-    }
-
-    @Operation(
         summary = "출판사 ID로 특정 출판사의 상세 정보 조회",
         description = "출판사 ID를 사용하여 특정 출판사의 출간 도서 목록과 태그를 포함한 상세 정보를 조회합니다."
     )
@@ -79,5 +64,4 @@ class PublisherController(
         val publisherDto = publisherService.getPublisherDetail(id)
         return ResponseEntity.ok(publisherDto)
     }
-
 }

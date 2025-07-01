@@ -13,9 +13,14 @@ spring:
     init:
       mode: always
 
-# 커스텀 데이터베이스 플랫폼 설정
 database:
-  platform: h2  # 기본값
+  platform: h2
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:mySecretKey12345678901234567890123456789012345678901234567890}
+  access-token-expire-time: ${JWT_ACCESS_TOKEN_EXPIRE_TIME:3600000}  # 1시간 (1000 * 60 * 60)
+  refresh-token-expire-time: ${JWT_REFRESH_TOKEN_EXPIRE_TIME:604800000}  # 7일 (1000 * 60 * 60 * 24 * 7)
 
 external:
   cultural-data-loader:
@@ -59,39 +64,48 @@ springdoc:
     path: /api-docs
 
 ---
+# Local 환경 (Oracle 개발용)
 spring:
   config:
     activate:
       on-profile: local
+  
   datasource:
-    url: jdbc:mysql://localhost:3306/HBD?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    #    url: jdbc:mysql://localhost:3306/HBD?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    #    username: root
+    #    password: password
+    #    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:oracle:thin:@//localhost:1521/XEPDB1
+    username: bookapp
+    password: password123
+    driver-class-name: oracle.jdbc.OracleDriver
     hikari:
       maximum-pool-size: 100
       minimum-idle: 5
       connection-timeout: 5000
-
-database:
-  platform: mysql
+  
   jpa:
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
+        #        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.OracleDialect
         show_sql: false
         format_sql: false
         default_batch_fetch_size: 100
+  
   batch:
     jdbc:
       initialize-schema: embedded
 
 external:
   cultural-data-loader:
-    enabled: true
+    enabled: false
     batchSize: 100
+
+database:
+  platform: oracle
 
 sentry:
   debug: true
@@ -99,12 +113,13 @@ sentry:
   tags:
     env: local
 
-
 ---
+# Dev 환경 (운영 Oracle)
 spring:
   config:
     activate:
       on-profile: dev
+  
   datasource:
     url: jdbc:oracle:thin:@${DB_CONNECTION}
     username: ${DB_USERNAME}
@@ -114,10 +129,7 @@ spring:
       maximum-pool-size: 100
       minimum-idle: 5
       connection-timeout: 5000
-
-database:
-  platform: oracle
-
+  
   jpa:
     hibernate:
       ddl-auto: update
@@ -132,6 +144,9 @@ external:
   cultural-data-loader:
     enabled: false
     batchSize: 100
+
+database:
+  platform: oracle
 
 sentry:
   debug: false

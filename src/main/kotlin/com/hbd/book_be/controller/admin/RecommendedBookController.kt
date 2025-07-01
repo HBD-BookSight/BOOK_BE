@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Admin Recommended Book API", description = "관리자용 추천 도서 관리 API")
+@Tag(name = "Admin - Recommended Book API", description = "관리자 - 추천 도서 관리 API")
 @RestController
 @RequestMapping("/admin/v1/recommended-books")
 class RecommendedBookController(
