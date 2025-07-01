@@ -1,5 +1,7 @@
 package com.hbd.book_be.controller.api
 
+import com.hbd.book_be.annotation.RequireAdminRole
+
 import com.hbd.book_be.dto.PublisherDto
 import com.hbd.book_be.dto.request.PublisherCreateRequest
 import com.hbd.book_be.dto.request.PublisherUpdateRequest
@@ -57,19 +59,6 @@ class PublisherController(
     }
 
     @Operation(
-        summary = "새 출판사 정보 생성",
-        description = "새로운 출판사 정보를 추가합니다. 출판사의 기본 정보와 관련 도서, 태그를 포함할 수 있습니다."
-    )
-    @PostMapping
-    fun createPublisher(
-        @RequestBody
-        publisherCreateRequest: PublisherCreateRequest
-    ): ResponseEntity<PublisherDto.Detail> {
-        val publisherDto = publisherService.createPublisher(publisherCreateRequest)
-        return ResponseEntity.ok(publisherDto)
-    }
-
-    @Operation(
         summary = "출판사 ID로 특정 출판사의 상세 정보 조회",
         description = "출판사 ID를 사용하여 특정 출판사의 출간 도서 목록과 태그를 포함한 상세 정보를 조회합니다."
     )
@@ -82,10 +71,25 @@ class PublisherController(
     }
 
     @Operation(
+        summary = "새 출판사 정보 생성",
+        description = "새로운 출판사 정보를 추가합니다. 출판사의 기본 정보와 관련 도서, 태그를 포함할 수 있습니다."
+    )
+    @PostMapping
+    @RequireAdminRole
+    fun createPublisher(
+        @RequestBody
+        publisherCreateRequest: PublisherCreateRequest
+    ): ResponseEntity<PublisherDto.Detail> {
+        val publisherDto = publisherService.createPublisher(publisherCreateRequest)
+        return ResponseEntity.ok(publisherDto)
+    }
+    
+    @Operation(
         summary = "출판사 정보 수정",
         description = "기존 출판사 정보를 수정합니다. 관리자만 수정할 수 있습니다."
     )
     @PutMapping("/{id}")
+    @RequireAdminRole
     fun updatePublisher(
         @Parameter(description = "수정할 출판사의 ID", required = true) @PathVariable id: Long,
         @RequestBody publisherUpdateRequest: PublisherUpdateRequest
@@ -96,9 +100,10 @@ class PublisherController(
 
     @Operation(
         summary = "출판사 정보 삭제",
-        description = "출판사 정보를 삭제합니다. 관리자만 삭제할 수 있습니다."
+        description = "출판사 정보를 삭제합니다. 관리자만 삭제할 수 있습니다. 관리자 권한이 필요합니다."
     )
     @DeleteMapping("/{id}")
+    @RequireAdminRole
     fun deletePublisher(
         @Parameter(description = "삭제할 출판사의 ID", required = true) @PathVariable id: Long
     ): ResponseEntity<Void> {

@@ -24,6 +24,7 @@ class BookViewLogController(
         description = "페이징된 책 조회 로그 목록을 조회합니다."
     )
     @GetMapping
+    @RequireAdminRole
     fun getBookViewLogs(
         @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
         @RequestParam("page", defaultValue = "0") page: Int,

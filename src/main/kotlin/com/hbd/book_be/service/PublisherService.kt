@@ -109,11 +109,6 @@ class PublisherService(
         val publisher = publisherRepository.findById(id).getOrNull()
             ?: throw NotFoundException("Not found publisher(id: $id)")
 
-        // ADMIN 권한 확인
-        if (!authUtils.isCurrentUserAdmin()) {
-            throw IllegalAccessException("수정 권한이 없습니다. 관리자만 수정할 수 있습니다.")
-        }
-
         // 필드 업데이트 (null이 아닌 값만)
         publisherUpdateRequest.name?.let { publisher.name = it }
         publisherUpdateRequest.engName?.let { publisher.engName = it }
@@ -146,11 +141,6 @@ class PublisherService(
     fun deletePublisher(id: Long) {
         val publisher = publisherRepository.findById(id).getOrNull()
             ?: throw NotFoundException("Not found publisher(id: $id)")
-
-        // ADMIN 권한 확인
-        if (!authUtils.isCurrentUserAdmin()) {
-            throw IllegalAccessException("삭제 권한이 없습니다. 관리자만 삭제할 수 있습니다.")
-        }
 
         // Soft delete
         publisher.deletedAt = java.time.LocalDateTime.now()

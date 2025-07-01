@@ -1,5 +1,7 @@
 package com.hbd.book_be.controller.api
 
+import com.hbd.book_be.annotation.RequireAdminRole
+
 import com.hbd.book_be.dto.ContentsDto
 import com.hbd.book_be.dto.DiscoveryContentsDto
 import com.hbd.book_be.dto.request.ContentsCreateRequest
@@ -89,6 +91,7 @@ class ContentsController(
         description = "새로운 콘텐츠를 생성합니다."
     )
     @PostMapping
+    @RequireAdminRole
     fun createContents(
         @RequestBody
         request: ContentsCreateRequest
@@ -102,6 +105,7 @@ class ContentsController(
         description = "기존 콘텐츠 정보를 수정합니다. 관리자만 수정할 수 있습니다."
     )
     @PutMapping("/{id}")
+    @RequireAdminRole
     fun updateContents(
         @Parameter(description = "수정할 콘텐츠의 ID", required = true) @PathVariable id: Long,
         @RequestBody contentsUpdateRequest: ContentsUpdateRequest
@@ -115,6 +119,7 @@ class ContentsController(
         description = "콘텐츠 정보를 삭제합니다. 관리자만 삭제할 수 있습니다."
     )
     @DeleteMapping("/{id}")
+    @RequireAdminRole
     fun deleteContents(
         @Parameter(description = "삭제할 콘텐츠의 ID", required = true) @PathVariable id: Long
     ): ResponseEntity<Void> {

@@ -23,6 +23,7 @@ class RecommendedBookController(
         description = "특정 ISBN의 도서를 추천 도서로 추가합니다."
     )
     @PostMapping
+    @RequireAdminRole
     fun createRecommendedBook(
         @RequestBody request: RecommendedBookCreateRequest
     ): ResponseEntity<RecommendedBookDto> {
@@ -35,6 +36,7 @@ class RecommendedBookController(
         description = "특정 ISBN의 추천 도서를 삭제합니다."
     )
     @DeleteMapping("/{isbn}")
+    @RequireAdminRole
     fun deleteRecommendedBook(
         @Parameter(description = "삭제할 추천 도서의 ISBN", required = true) @PathVariable isbn: String
     ): ResponseEntity<Void> {

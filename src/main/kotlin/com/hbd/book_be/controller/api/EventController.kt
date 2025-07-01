@@ -4,6 +4,7 @@ import com.hbd.book_be.dto.BookDto
 import com.hbd.book_be.dto.EventDto
 import com.hbd.book_be.dto.request.EventCreateRequest
 import com.hbd.book_be.dto.request.EventSearchRequest
+import com.hbd.book_be.dto.request.EventUpdateRequest
 import com.hbd.book_be.dto.response.ListResponse
 import com.hbd.book_be.dto.response.PageResponse
 import com.hbd.book_be.enums.EventFlag
@@ -84,6 +85,7 @@ class EventController(
         description = "새로운 이벤트를 생성합니다. 이벤트 종료 날짜는 오늘 이후여야 합니다."
     )
     @PostMapping
+    @RequireAdminRole
     fun createEvent(
         @RequestBody
         eventCreateRequest: EventCreateRequest
@@ -111,6 +113,35 @@ class EventController(
         val bookDtoList = eventService.getEventBooks(eventId)
         val listResponse = ListResponse(items = bookDtoList, length = bookDtoList.size)
         return ResponseEntity.ok(listResponse)
+    }
+
+    @Operation(
+        summary = "이벤트 수정",
+        description = "기존 이벤트의 정보를 수정합니다. 관리자 권한이 필요합니다."
+    )
+    @PutMapping("/{eventId}")
+    @RequireAdminRole
+    fun updateEvent(
+        @Parameter(description = "수정할 이벤트의 ID", required = true)
+        @PathVariable eventId: Long,
+        @RequestBody eventUpdateRequest: EventUpdateRequest
+    ): ResponseEntity<EventDto> {
+        val eventDto = eventService.updateEvent(eventId, eventUpdateRequest)
+        return ResponseEntity.ok(eventDto)
+    }
+
+    @Operation(
+        summary = "이벤트 삭제",
+        description = "이벤트 정보를 삭제합니다. 관리자만 삭제할 수 있습니다. 관리자 권한이 필요합니다."
+    )
+    @DeleteMapping("/{eventId}")
+    @RequireAdminRole
+    fun deleteEvent(
+        @Parameter(description = "삭제할 이벤트의 ID", required = true)
+        @PathVariable eventId: Long
+    ): ResponseEntity<Void> {
+        eventService.deleteEvent(eventId)
+        return ResponseEntity.noContent().build()
     }
 
 }
