@@ -11,6 +11,9 @@ plugins {
     // JPA Entity에 no-arg 생성자 추가
     kotlin("plugin.noarg") version "1.9.25"
     kotlin("kapt") version "1.9.25"
+
+    // Sentry
+    id("io.sentry.jvm.gradle") version "5.8.0"
 }
 
 group = "com.hbd"
@@ -65,6 +68,10 @@ dependencies {
     // csv loader
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.15.2")
 
+    // Sentry
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.14.0")
+    implementation("io.sentry:sentry-logback:8.14.0")
+
     // test
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -107,4 +114,23 @@ noArg {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// Sentry Configuration
+sentry {
+    includeSourceContext.set(true)
+    org.set("book-be-org")
+    projectName.set("book-be")
+    authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
+    includeProguardMapping.set(false)
+    telemetry.set(false)
+}
+
+// Sentry와 QueryDSL 간의 태스크 의존성 해결
+afterEvaluate {
+    tasks.findByName("generateSentryBundleIdJava")?.let { sentryTask ->
+        tasks.findByName("compileQuerydsl")?.let { querydslTask ->
+            sentryTask.dependsOn(querydslTask)
+        }
+    }
 }
