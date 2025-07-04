@@ -43,9 +43,9 @@ class ContentsController(
         @Parameter(description = "정렬 방향 (asc, desc)", example = "desc")
         @RequestParam("direction", defaultValue = "desc")
         direction: SortDirection = SortDirection.desc,
-    ): ResponseEntity<PageResponse<ContentsDto>> {
+    ): ResponseEntity<PageResponse<ContentsDto.Detail>> {
         val pageContentsDto = contentsService.getContents(page, limit, orderBy, direction)
-        val pageResponse = PageResponse<ContentsDto>(
+        val pageResponse = PageResponse<ContentsDto.Detail>(
             items = pageContentsDto.content,
             totalCount = pageContentsDto.totalElements,
             totalPages = pageContentsDto.totalPages,

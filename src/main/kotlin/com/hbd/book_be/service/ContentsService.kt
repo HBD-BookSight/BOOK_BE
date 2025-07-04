@@ -25,7 +25,6 @@ class ContentsService(
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
     private val bookRepository: BookRepository,
-    private val authUtils: AuthUtils
 ) {
 
     @Transactional(readOnly = true)
@@ -44,13 +43,13 @@ class ContentsService(
         limit: Int,
         orderBy: ContentsSortBy,
         direction: SortDirection,
-    ): Page<ContentsDto> {
+    ): Page<ContentsDto.Detail> {
         val sortDirection = Sort.Direction.fromString(direction.name)
         val sort = Sort.by(sortDirection, orderBy.value)
         val pageRequest = PageRequest.of(page, limit, sort)
 
         val contentsPage = contentsRepository.findAllActive(pageRequest)
-        return contentsPage.map { ContentsDto.fromEntity(it) }
+        return contentsPage.map { ContentsDto.Detail.fromEntity(it) }
     }
 
     @Transactional(readOnly = true)
@@ -95,11 +94,13 @@ class ContentsService(
             ?: throw NotFoundException("Not found contents(id: $id)")
 
         // 필드 업데이트 (null이 아닌 값만)
-        contentsUpdateRequest.title?.let { contents.title = it }
-        contentsUpdateRequest.image?.let { contents.image = it }
-        contentsUpdateRequest.description?.let { contents.description = it }
-        contentsUpdateRequest.memo?.let { contents.memo = it }
-        contentsUpdateRequest.urls?.let { contents.urls = it.toMutableList() }
+        contents.apply {
+            contentsUpdateRequest.title?.let { title = it }
+            contentsUpdateRequest.image?.let { image = it }
+            contentsUpdateRequest.description?.let { description = it }
+            contentsUpdateRequest.memo?.let { memo = it }
+            contentsUpdateRequest.urls?.let { urls = it.toMutableList() }
+        }
 
         // 태그 업데이트
         contentsUpdateRequest.tagList?.let { tagNames ->
