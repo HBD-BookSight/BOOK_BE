@@ -126,11 +126,55 @@ sentry {
     telemetry.set(false)
 }
 
-// Sentry와 QueryDSL 간의 태스크 의존성 해결
+// Sentry와 QueryDSL 간의 태스크 의존성 해결 및 조건부 비활성화
 afterEvaluate {
-    tasks.findByName("generateSentryBundleIdJava")?.let { sentryTask ->
-        tasks.findByName("compileQuerydsl")?.let { querydslTask ->
-            sentryTask.dependsOn(querydslTask)
+    // application.yml에서 sentry.enabled 설정 확인
+    val applicationYmlFile = file("src/main/resources/application.yml")
+    var sentryEnabled = false
+    
+    if (applicationYmlFile.exists()) {
+        val content = applicationYmlFile.readText()
+        // 기본 sentry.enabled 값 찾기
+        val enabledMatch = Regex("sentry:\\s*\\n\\s*enabled:\\s*(true|false)").find(content)
+        if (enabledMatch != null) {
+            sentryEnabled = enabledMatch.groupValues[1] == "true"
+        }
+        
+        // 현재 활성 프로파일 확인
+        val activeProfile = System.getProperty("spring.profiles.active") ?: "local"
+        val profilePattern = "---[\\s\\S]*?on-profile:\\s*$activeProfile[\\s\\S]*?(?=---|\\z)"
+        val profileMatch = Regex(profilePattern).find(content)
+        
+        if (profileMatch != null) {
+            val profileSection = profileMatch.value
+            val profileEnabledMatch = Regex("sentry:[\\s\\S]*?enabled:\\s*(true|false)").find(profileSection)
+            if (profileEnabledMatch != null) {
+                sentryEnabled = profileEnabledMatch.groupValues[1] == "true"
+            }
+        }
+    }
+    
+    println("[BUILD] Sentry enabled: $sentryEnabled (profile: ${System.getProperty("spring.profiles.active") ?: "local"})")
+    
+    if (!sentryEnabled) {
+        // Sentry 기능이 비활성화된 경우 빌드 태스크들도 비활성화
+        tasks.findByName("sentryBundleSourcesJava")?.enabled = false
+        tasks.findByName("sentryCollectSourcesJava")?.enabled = false
+        tasks.findByName("generateSentryBundleIdJava")?.enabled = false
+        println("[BUILD] Sentry build tasks disabled")
+    } else {
+        // Sentry가 활성화된 경우 QueryDSL과의 의존성 설정
+        println("[BUILD] Setting up Sentry task dependencies")
+        tasks.findByName("generateSentryBundleIdJava")?.let { sentryTask ->
+            tasks.findByName("compileQuerydsl")?.let { querydslTask ->
+                sentryTask.dependsOn(querydslTask)
+            }
+        }
+        
+        tasks.findByName("sentryCollectSourcesJava")?.let { sentryCollectTask ->
+            tasks.findByName("compileQuerydsl")?.let { querydslTask ->
+                sentryCollectTask.dependsOn(querydslTask)
+            }
         }
     }
 }

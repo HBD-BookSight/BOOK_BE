@@ -4,10 +4,20 @@ import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.protocol.User
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Component
 
 /**
  * Sentry 헬퍼 유틸리티 클래스
+ * application.yml의 sentry.enabled 설정에 따라 조건부로 활성화됩니다.
  */
+@Component
+@ConditionalOnProperty(
+    prefix = "sentry",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = false
+)
 object SentryHelper {
     
     /**
