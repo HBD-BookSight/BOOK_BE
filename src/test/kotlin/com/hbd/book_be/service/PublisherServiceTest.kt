@@ -5,10 +5,13 @@ import com.hbd.book_be.domain.Publisher
 import com.hbd.book_be.domain.Tag
 import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.enums.PublisherSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.exception.NotFoundException
 import com.hbd.book_be.repository.BookRepository
 import com.hbd.book_be.repository.PublisherRepository
 import com.hbd.book_be.repository.TagRepository
+import com.hbd.book_be.util.AuthUtils
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -26,7 +29,8 @@ class PublisherServiceTest {
     private val publisherRepository: PublisherRepository = mockk()
     private val bookRepository: BookRepository = mockk()
     private val tagRepository: TagRepository = mockk()
-    private val publisherService = PublisherService(publisherRepository, bookRepository, tagRepository)
+    private val authUtils: AuthUtils = mockk(relaxed = true)
+    private val publisherService = PublisherService(publisherRepository, bookRepository, tagRepository, authUtils)
 
     @Test
     @DisplayName("Publisher 목록을 조회해야 한다.")
@@ -41,7 +45,7 @@ class PublisherServiceTest {
         )
         every { publisherRepository.findAllActive(any()) } returns PageImpl(listOf(publisher))
 
-        val result = publisherService.getPublishers()
+        val result = publisherService.getPublishers(orderBy = PublisherSortBy.Name, direction = SortDirection.asc)
 
         assertThat(result.content).hasSize(1)
         assertThat(result.content[0].name).isEqualTo("PublisherA")
@@ -177,7 +181,7 @@ class PublisherServiceTest {
 
         every { publisherRepository.findAllActive(any()) } returns PageImpl(listOf(publisherB, publisherA))
 
-        val result = publisherService.getPublishers(page = 0, limit = 10, orderBy = "name", direction = "desc")
+        val result = publisherService.getPublishers(page = 0, limit = 10, orderBy = PublisherSortBy.Name, direction = SortDirection.desc)
 
         assertThat(result.content.map { it.name }).containsExactly("Beta", "Alpha")
     }

@@ -5,6 +5,8 @@ import com.hbd.book_be.controller.api.PublisherController
 import com.hbd.book_be.domain.common.UrlInfo
 import com.hbd.book_be.dto.*
 import com.hbd.book_be.dto.request.PublisherCreateRequest
+import com.hbd.book_be.dto.request.enums.PublisherSortBy
+import com.hbd.book_be.dto.request.enums.SortDirection
 import com.hbd.book_be.service.PublisherService
 import io.mockk.every
 import io.mockk.mockk
@@ -67,7 +69,7 @@ class PublisherControllerTest {
         val pageRequest = PageRequest.of(0, 10)
         val page = PageImpl(publishers, pageRequest, publishers.size.toLong())
 
-        every { publisherService.getPublishers(0, 10, "name", "asc") } returns page
+        every { publisherService.getPublishers(0, 10, PublisherSortBy.Name, SortDirection.asc) } returns page
 
         mockMvc.perform(get("/api/v1/publishers"))
             .andExpect(status().isOk)
@@ -83,7 +85,7 @@ class PublisherControllerTest {
         val request = PublisherCreateRequest(
             name = "New Publisher",
             engName = "New Publisher Eng",
-            logo = null,
+            logo = "",
             description = "New description",
             memo = "Internal note"
         )
@@ -209,7 +211,7 @@ class PublisherControllerTest {
         val pageRequest = PageRequest.of(0, 10)
         val page = PageImpl(publishers, pageRequest, publishers.size.toLong())
 
-        every { publisherService.getPublishers(0, 10, "name", "desc") } returns page
+        every { publisherService.getPublishers(0, 10, PublisherSortBy.Name, SortDirection.desc) } returns page
 
         // when + then
         mockMvc.perform(
