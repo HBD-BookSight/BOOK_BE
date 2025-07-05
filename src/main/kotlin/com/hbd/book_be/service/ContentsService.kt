@@ -25,7 +25,8 @@ class ContentsService(
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
     private val bookRepository: BookRepository,
-) {
+
+    ) {
 
     @Transactional(readOnly = true)
     fun getContentsDetail(id: Long): ContentsDto.Detail {
